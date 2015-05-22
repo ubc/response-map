@@ -15,9 +15,12 @@
 	$lti = new Lti();
 	$lti->require_valid(); // Returns error message if not a valid LTI request
 
-	$lis_result_sourcedid_split = explode(':', $_POST['lis_result_sourcedid']);
+	//TODO: REMOVE
+	/*$lis_result_sourcedid_split = explode(':', $_POST['lis_result_sourcedid']);
 	$question_url_id = explode('-', $lis_result_sourcedid_split[1]);
-	$question_id = $question_url_id[count($question_url_id) - 1];
+	$question_id = $question_url_id[count($question_url_id) - 1];*/
+
+	$question_id = end(explode('-', $_POST['resource_link_id']));
 
 	require_once('config.php');
 
@@ -26,8 +29,9 @@
 		die();
 	}
 
+	//TODO: REMOVE
 	// Check that response table exists and create if not
-	if (mysqli_num_rows(mysqli_query($conn, 'SHOW TABLES like "response"')) === 0) {
+	/*if (mysqli_num_rows(mysqli_query($conn, 'SHOW TABLES like "response"')) === 0) {
 		$sql = "CREATE table response (
 			response_id int NOT NULL AUTO_INCREMENT,
 			resource_id varchar(500) NOT NULL,
@@ -78,11 +82,12 @@
 			echo 'Cannot create user table! Please contact UQx staff.';
 			die();
 		}
-	}
+	}*/
 
 	$student_responses = array();
 	$all_text = '';
 	$display_name_loc = true;
+	$null = NULL;
 
 	require_once('process-text.php');
 
@@ -90,16 +95,34 @@
 	$_POST = escapeUserInput($_POST);
 
 	// Check to see if student has submitted fullname and location
-	$select_user_query = mysqli_query($conn, 'SELECT fullname, location, lat, lng FROM user WHERE user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
-	$user_row = mysqli_fetch_row($select_user_query);
+	//$select_user_query = mysqli_query($conn, 'SELECT fullname, location, lat, lng FROM user WHERE user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
+	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '" LIMIT 1');
+	$user_row = mysqli_fetch_object($select_user_query);
 
+	// if user does not exist in the system, add the user
+	if (empty($user_row)) {
+		$add_user_query = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($add_user_query, 'INSERT INTO user (userId, create_time) VALUES(?, ?)');
+		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION[$_POST['lis_result_sourcedid']]['user_id'], $null);
+		mysqli_stmt_execute($add_user_query);
+		mysqli_stmt_close($add_user_query);
+
+		// grab id of newly created user
+		$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '" LIMIT 1');
+		$user_row = mysqli_fetch_object($select_user_query);
+	}
+	$userId = $user_row->userId;
+
+	// if user exists
 	if (!empty($user_row)) {
 		$select_response_query = mysqli_query($conn, 'SELECT response_id, response_body, image_url, thumbnail_url, vote_count FROM response WHERE resource_id = "' . $question_id . '" AND user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
 		$self_row = mysqli_fetch_row($select_response_query);
 
+		// if a response is found in the database or a response is entered into the form
 		if ((!empty($self_row)) || (!empty($_POST['user_response']))) {
 			$student_responses[0] = new stdClass();
 
+			// if a response is found in the database
 			if (empty($self_row)) {
 				$insert_response_query = mysqli_query($conn, 'INSERT INTO response (resource_id, response_body, user_id, create_time) VALUES ("' . $question_id . '", "' . $_POST['user_response'] . '", "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '", NOW())');
 
