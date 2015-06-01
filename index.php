@@ -20,7 +20,7 @@
 	$question_url_id = explode('-', $lis_result_sourcedid_split[1]);
 	$question_id = $question_url_id[count($question_url_id) - 1];*/
 
-	$question_id = end(explode('-', $_POST['resource_link_id']));
+	$question_id = end(explode('-', $_SESSION[$_POST['lis_result_sourcedid']]['resource_link_id']));
 
 	require_once('config.php');
 
@@ -98,6 +98,8 @@
 	//$select_user_query = mysqli_query($conn, 'SELECT fullname, location, lat, lng FROM user WHERE user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
 	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '" LIMIT 1');
 	$user_row = mysqli_fetch_object($select_user_query);
+	$select_resource_query = mysqli_query($conn, 'SELECT id FROM resource WHERE map_id="' . $question_id . '" LIMIT 1');
+	$resource_row = mysqli_fetch_object($select_resource_query);
 
 	// if user does not exist in the system, add the user
 	if (empty($user_row)) {
@@ -105,17 +107,77 @@
 		mysqli_stmt_prepare($add_user_query, 'INSERT INTO user (userId, create_time) VALUES(?, ?)');
 		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION[$_POST['lis_result_sourcedid']]['user_id'], $null);
 		mysqli_stmt_execute($add_user_query);
+		$userId = mysqli_stmt_insert_id($add_user_query);
 		mysqli_stmt_close($add_user_query);
-
-		// grab id of newly created user
-		$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '" LIMIT 1');
-		$user_row = mysqli_fetch_object($select_user_query);
+	} else {
+		$userId = $user_row->id;
 	}
-	$userId = $user_row->userId;
+
+	// if map does not exist in the system, add the resource
+	if (empty($resource_row)) {
+		$add_resource_query = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
+		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION[$_POST['lis_result_sourcedid']]['context_id'], $question_id, $null);
+		mysqli_stmt_execute($add_resource_query);
+		$resourceId = mysqli_stmt_insert_id($add_resource_query);
+		mysqli_stmt_close($add_resource_query);
+	} else {
+		$resourceId = $resource_row->id;
+	}
 
 	// if user exists
-	if (!empty($user_row)) {
-		$select_response_query = mysqli_query($conn, 'SELECT response_id, response_body, image_url, thumbnail_url, vote_count FROM response WHERE resource_id = "' . $question_id . '" AND user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
+	if ($userId && $resourceId) {
+		if (!empty($_POST['user_location'])) {
+			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
+			if ($geocode->status === "OK") {
+				$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
+				$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
+				$image = NULL;
+				$thumbnail = NULL;
+				if (!empty($_POST['user_image_url']) && !empty($_POST['user_thumbnail_url'])) {
+					$image = $_POST['user_image_url'];
+					$thumbnail = $_POST['user_thumbnail_url'];
+				}
+
+				$insert_response_query = mysqli_stmt_init($conn);
+				mysqli_stmt_prepare($insert_response_query,
+					'INSERT INTO response (user_id, resource_id, head, description, location, latitude, longitude, '.
+					'image_url, thumbnail_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+				);
+				$test = mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $userId, $resourceId,
+					$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
+					$image, $thumbnail, $null);
+				$test = mysqli_stmt_execute($insert_response_query);
+				$test = mysqli_stmt_close($insert_response_query);
+			} else {
+				// refresh the page without saving
+				require "index.php";
+			}
+		}
+
+		// query for all the submitted responses
+		$select_response_query = mysqli_query($conn, 'SELECT id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
+			'FROM response WHERE resource_id = "' . $resourceId . '"');
+		while ($object = mysqli_fetch_object($select_response_query)) {
+			$tmp = new stdClass();
+			$tmp->id = $object->id;
+			$tmp->response = $object->description;
+			$tmp->image_url = $object->image_url;
+			$tmp->thumbnail_url = $object->thumbnail_url;
+			$tmp->vote_count = $object->vote_count;
+			$tmp->thumbs_up = false;    //TODO: FIX
+			$tmp->fullname = $object->head;
+			$tmp->location = $object->location;
+			$tmp->lat = $object->latitude;
+			$tmp->lng = $object->longitude;
+
+			$all_text .= ' ' . $tmp->response;
+			$student_responses[] = $tmp;
+		}
+
+		$select_response_query = mysqli_query($conn, 'SELECT count(*) as count FROM response WHERE resource_id = "' . $resourceId . '" AND user_id = "' . $userId . '"');
+		$count = mysqli_fetch_object($select_response_query)->count;
+		/*$select_response_query = mysqli_query($conn, 'SELECT response_id, response_body, image_url, thumbnail_url, vote_count FROM response WHERE resource_id = "' . $question_id . '" AND user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
 		$self_row = mysqli_fetch_row($select_response_query);
 
 		// if a response is found in the database or a response is entered into the form
@@ -194,25 +256,22 @@
 				$all_text .= ' ' . $student_response->response;
 
 				array_push($student_responses, $student_response);
-			}
-
+			}*/
+		if ($count > 0) {
 			$all_student_responses = json_encode($student_responses);
 			$word_frequency = json_encode(wordCount($all_text));
 			$postvars = $_POST;
 			// Show map
 			$map_user_id = $_SESSION[$_POST['lis_result_sourcedid']]['user_id'];
-			$map_location = $user_row[1];
+			//$map_location = $user_row[1]; //TODO: FIX
+			$map_location = 'Vancouver';
 			require('map.php');
+		} else {
+			require 'response.php';
 		}
-		else {
-			// Hide the fullname and location fields
-			$display_name_loc = false;
-
-			// Show response form
-			require('response.php');
-		}
+		//require 'response.php';
 	}
-	elseif (!empty($_POST['user_fullname']) && !empty($_POST['user_location'])) {
+	/*elseif (!empty($_POST['user_fullname']) && !empty($_POST['user_location'])) {
 		$geocode = JSON_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
 
 		if ($geocode->status === 'OK') {
@@ -293,6 +352,7 @@
 		}
 	}
 	else {
-		require('response.php');
-	}
+		// should not go here - if no user is found, should create it
+		//require('response.php');
+	}*/
 ?>
