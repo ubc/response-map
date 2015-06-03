@@ -174,6 +174,10 @@
 						draggable: false
 					});
 
+					if (<?php echo $userId ?> == mapResponses[key].user_id) {
+						marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+					}
+
 					marker.distanceToCentre = mapResponses[key].distanceToCentre;
 					marker.fullname = mapResponses[key].fullname;
 					marker.responseBody = mapResponses[key].response;

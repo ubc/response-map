@@ -96,11 +96,12 @@
 		}
 
 		// query for all the submitted responses
-		$select_response_query = mysqli_query($conn, 'SELECT id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
+		$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
 			'FROM response WHERE resource_id = "' . $resourceId . '"');
 		while ($object = mysqli_fetch_object($select_response_query)) {
 			$tmp = new stdClass();
 			$tmp->id = $object->id;
+			$tmp->user_id = $object->user_id;
 			$tmp->response = $object->description;
 			$tmp->image_url = $object->image_url;
 			$tmp->thumbnail_url = $object->thumbnail_url;
