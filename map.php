@@ -65,16 +65,7 @@
 
 <html>
 	<head>
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
-		<link rel="stylesheet" href="css/response-map.css"/>
-
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-		<script src="js/markerclusterer.js"></script>
-		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
-		<script src="js/d3.layout.cloud.js"></script>
-		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+		<?php include('html/header.html'); ?>
 
 		<script type="text/javascript">
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
@@ -340,16 +331,6 @@
 			</div>
 		</div>
 	</div>
-	<form method="post" action="update_location.php">
-		<input type='hidden' name='postvars' value='<?php echo json_encode($_POST); ?>' />
-		<input type="hidden" name="user_id" value="<?php echo $map_user_id; ?>" />
-		<div class="input-group" style="margin-top:20px;">
-			<input type="text" class="form-control user-location" name="user_location" value="<?php echo str_replace('"',"'",$map_location); ?>">
-			<span class="input-group-btn">
-				<input type="submit" class="btn btn-primary" value="Update Your Location" />
-			</span>
-		</div>
-	</form>
 
 	<?php if(isset($_POST['custom_showcloud']) && $_POST['custom_showcloud'] == 'true') { ?>
 		<div class="response-word-cloud"></div>

@@ -124,9 +124,6 @@
 			$word_frequency = json_encode(wordCount($all_text));
 			$postvars = $_POST;
 			// Show map
-			$map_user_id = $_SESSION[$_POST['lis_result_sourcedid']]['user_id'];
-			//$map_location = $user_row[1]; //TODO: FIX
-			$map_location = 'Vancouver';
 			require('map.php');
 		} else {
 			require 'response.php';
