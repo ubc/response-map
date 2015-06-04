@@ -65,35 +65,6 @@
 
 	// if user exists
 	if ($_SESSION['user']['id'] && $_SESSION['resource']['id']) {
-		if (!empty($_POST['user_location'])) {
-			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
-			if ($geocode->status === "OK") {
-				$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
-				$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
-				$image = NULL;
-				$thumbnail = NULL;
-				if (!empty($_POST['user_image_url']) && !empty($_POST['user_thumbnail_url'])) {
-					$image = $_POST['user_image_url'];
-					$thumbnail = $_POST['user_thumbnail_url'];
-				}
-
-				$insert_response_query = mysqli_stmt_init($conn);
-				mysqli_stmt_prepare($insert_response_query,
-					'INSERT INTO response (user_id, resource_id, head, description, location, latitude, longitude, '.
-					'image_url, thumbnail_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-				);
-				mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
-					$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
-					$image, $thumbnail, $null);
-				mysqli_stmt_execute($insert_response_query);
-				mysqli_stmt_close($insert_response_query);
-                include('grade.php');
-			} else {
-				// refresh the page without saving
-				require "index.php";
-			}
-		}
-
 		// query for all the submitted responses
 		$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
 			'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');

@@ -15,7 +15,34 @@
 		return $val;
 	}
 
-	$assigned_filename = md5($_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . $question_id);
+	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
+
+    if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
+        $geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
+        if ($geocode->status === "OK") {
+            $head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
+            $description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
+            $image = NULL;
+            $thumbnail = NULL;
+            if (!empty($_POST['user_image_url']) && !empty($_POST['user_thumbnail_url'])) {
+                $image = $_POST['user_image_url'];
+                $thumbnail = $_POST['user_thumbnail_url'];
+            }
+
+            $insert_response_query = mysqli_stmt_init($conn);
+            mysqli_stmt_prepare($insert_response_query,
+                'INSERT INTO response (user_id, resource_id, head, description, location, latitude, longitude, '.
+                'image_url, thumbnail_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
+                $head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
+                $image, $thumbnail, $null);
+            mysqli_stmt_execute($insert_response_query);
+            mysqli_stmt_close($insert_response_query);
+            include('grade.php');
+            header('Location: map.php');
+        }
+    }
 ?>
 <html>
 	<head>
@@ -119,6 +146,6 @@
 		
 		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
 
-		<button type="submit" class="save-question btn btn-primary">Save</button>
+		<button type="submit" class="save-question btn btn-primary" name="submit" value="Save">Save</button>
 	</form>
 </html>
