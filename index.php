@@ -82,11 +82,12 @@
 					'INSERT INTO response (user_id, resource_id, head, description, location, latitude, longitude, '.
 					'image_url, thumbnail_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 				);
-				$test = mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
+				mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
 					$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
 					$image, $thumbnail, $null);
-				$test = mysqli_stmt_execute($insert_response_query);
-				$test = mysqli_stmt_close($insert_response_query);
+				mysqli_stmt_execute($insert_response_query);
+				mysqli_stmt_close($insert_response_query);
+                include('grade.php');
 			} else {
 				// refresh the page without saving
 				require "index.php";

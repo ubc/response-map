@@ -50,6 +50,7 @@
             <span class="input-group-addon"><?php echo $response_label; ?></span>
             <textarea class="form-control user-response" rows="5" name="user_response"><?php echo $response->description ?></textarea>
         </div>
+        <input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
         <button type="submit" class="save-question btn btn-primary" name="submit" value="Edit">Edit</button>
     </form>
 </html>

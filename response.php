@@ -117,7 +117,7 @@
 		<input type="text" class="image-url" name="user_image_url">
 		<input type="text" class="thumbnail-url" name="user_thumbnail_url">
 		
-		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION[$_POST['lis_result_sourcedid']]['user_id']; ?>" />
+		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
 
 		<button type="submit" class="save-question btn btn-primary">Save</button>
 	</form>
