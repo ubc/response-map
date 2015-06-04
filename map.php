@@ -1,40 +1,46 @@
 <?php
-    session_start();
-    $session_id = session_id();
+	session_start();
+	$session_id = session_id();
 
-    require_once('config.php');
-    require_once('process-text.php');
+	require_once('config.php');
+	require_once('process-text.php');
 
-    if (mysqli_connect_error()) {
-        echo 'Failed to connect to question database: ' . mysqli_connect_error();
-        die();
-    }
+	if (mysqli_connect_error()) {
+		echo 'Failed to connect to question database: ' . mysqli_connect_error();
+		die();
+	}
 
-    // query for all the submitted responses
-    $student_responses = array();
-    $all_text = '';
-    $select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
-        'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
-    while ($object = mysqli_fetch_object($select_response_query)) {
-        $tmp = new stdClass();
-        $tmp->id = $object->id;
-        $tmp->user_id = $object->user_id;
-        $tmp->response = $object->description;
-        $tmp->image_url = $object->image_url;
-        $tmp->thumbnail_url = $object->thumbnail_url;
-        $tmp->vote_count = $object->vote_count;
-        $tmp->thumbs_up = false;    //TODO: FIX
-        $tmp->fullname = $object->head;
-        $tmp->location = $object->location;
-        $tmp->lat = $object->latitude;
-        $tmp->lng = $object->longitude;
+	// query for all the submitted responses
+	$student_responses = array();
+	$all_text = '';
+	$start = null;
+	$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
+		'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
+	while ($object = mysqli_fetch_object($select_response_query)) {
+		$tmp = new stdClass();
+		$tmp->id = $object->id;
+		$tmp->user_id = $object->user_id;
+		$tmp->response = $object->description;
+		$tmp->image_url = $object->image_url;
+		$tmp->thumbnail_url = $object->thumbnail_url;
+		$tmp->vote_count = $object->vote_count;
+		$tmp->thumbs_up = false;    //TODO: FIX
+		$tmp->fullname = $object->head;
+		$tmp->location = $object->location;
+		$tmp->lat = $object->latitude;
+		$tmp->lng = $object->longitude;
 
-        $all_text .= ' ' . $tmp->response;
-        $student_responses[] = $tmp;
-    }
+		if ($_SESSION['user']['id'] == $tmp->user_id) {
+			$start = $tmp;
+		}
 
-    $all_student_responses = json_encode($student_responses);
-    $word_frequency = json_encode(wordCount($all_text));
+		$all_text .= ' ' . $tmp->response;
+		$student_responses[] = $tmp;
+	}
+
+	$start = json_encode($start);
+	$all_student_responses = json_encode($student_responses);
+	$word_frequency = json_encode(wordCount($all_text));
 ?>
 <html>
 	<head>
@@ -43,14 +49,21 @@
 		<script type="text/javascript">
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
 			var mapResponses = JSON.parse(allStudentResponses);
-			var startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
 			var sourcedid = '<?php echo $_SESSION["lti"]["lis_result_sourcedid"] ?>';
 			var sessid = '<?php echo $session_id ?>';
+			var userId = '<?php echo $_SESSION['user']['id'] ?>';
 
 			var markerBounds = new google.maps.LatLngBounds();
 			var iterator = 0;
 			var map, markers = [];
 			var openedMarker = null;
+
+			// initialize to first response in case the user has no responses - eg. Instructor
+			var startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
+			var myResponse = '<?php echo $start ?>';
+			if (myResponse) {
+				startLocation = new google.maps.LatLng(myResponse.lat, myResponse.lng)
+			}
 
 			function toggleThumbsUp(respid, element) {
 				$.ajax({
@@ -87,7 +100,7 @@
 						}
 
 						voteCountElem.text(openedMarker.voteCount);
-					},
+					}
 				});
 			}
 
@@ -103,73 +116,41 @@
 					mapOptions
 				);
 
-				for (var key in mapResponses) {					
-					// First marker contains student's own response
-					if (key === 0) {
-						// Convert first marker lat and long to float for use in distance calculations
-						mapResponses[0].lat = parseFloat(mapResponses[0].lat);
-						mapResponses[0].lng = parseFloat(mapResponses[0].lng);
+				for (var key in mapResponses) {
+					mapResp = mapResponses[key];
+					mapResp.myMarker = false;
 
-						// First marker is the centre marker
-						mapResponses[0].distanceToCentre = 0;
+					mapResp.lat = parseFloat(mapResp.lat);
+					mapResp.lng = parseFloat(mapResp.lng);
 
-						mapResponses[0].myMarker = true;
-					}
-					else {
-						// Randomly nudge markers slightly to avoid overlap
-						var nudgeLat = Math.random() * 0.00005;
-						nudgeLat *= Math.floor(Math.random()*2) == 1 ? 1 : -1;
+					// nudges
+					nudgeLat = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
+					nudgeLng = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
 
-						var nudgeLng = Math.random() * 0.00005;
-						nudgeLng *= Math.floor(Math.random()*2) == 1 ? 1 : -1;
-
-						mapResponses[key].lat = parseFloat(mapResponses[key].lat) + nudgeLat;
-						mapResponses[key].lng = parseFloat(mapResponses[key].lng) + nudgeLng;
-
-						// Calculate the distance to centre marker
-						mapResponses[key].distanceToCentre = Math.sqrt(Math.pow(mapResponses[key].lat - mapResponses[0].lat, 2) + Math.pow(mapResponses[key].lng - mapResponses[0].lng, 2));
-					
-						mapResponses[key].myMarker = false;
-					}
+					mapResp.distanceToCentre = Math.sqrt(Math.pow(mapResp.lat - mapResp.lat, 2) + Math.pow(mapResp.lng - mapResp.lng, 2));
 
 					var marker = new google.maps.Marker({
-						position: new google.maps.LatLng(mapResponses[key].lat, mapResponses[key].lng),
+						position: new google.maps.LatLng(mapResp.lat, mapResp.lng),
 						map: map,
 						draggable: false
 					});
 
-					if (<?php echo $_SESSION['user']['id'] ?> == mapResponses[key].user_id) {
+					if (userId == mapResp.user_id) {
 						marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-						mapResponses[key].myMarker = true;
+						mapResp.myMarker = true;
 					}
 
-					marker.distanceToCentre = mapResponses[key].distanceToCentre;
-					marker.fullname = mapResponses[key].fullname;
-					marker.responseBody = mapResponses[key].response;
-					marker.myMarker = mapResponses[key].myMarker;
-					marker.fullImageUrl = mapResponses[key].image_url;
-					marker.thumbnailImageUrl = mapResponses[key].thumbnail_url;
-					marker.fullname = mapResponses[key].fullname;
-					marker.responseId = mapResponses[key].id;
-					marker.thumbsUp = mapResponses[key].thumbs_up;
-					marker.voteCount = parseInt(mapResponses[key].vote_count);
-
-					var contentString = '<div id="content">' +
-											'<h3 id="firstHeading" class="firstHeading">' + marker.fullname + '</h3>' +
-											'<div id="bodyContent">' +
-												'<p>' + marker.responseBody + '</p>';
-
-					if ((marker.thumbnailImageUrl !== null) && (marker.fullImageUrl !== null)) {
-						contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + marker.thumbnailImageUrl + '" alt=""/></a>';
-					}
-
-					contentString +=			'<button type="button" class="vote-btn btn btn-default btn-xs" onclick="toggleThumbsUp(' + marker.responseId + ', this)"><i class="fa fa-thumbs-o-up"></i></button>' +
-											'</div>' +
-										'</div>';
-
+					marker.distanceToCentre = mapResp.distanceToCentre;
+					marker.fullname = mapResp.fullname;
+					marker.responseBody = mapResp.response;
+					marker.myMarker = mapResp.myMarker;
+					marker.fullImageUrl = mapResp.image_url;
+					marker.thumbnailImageUrl = mapResp.thumbnail_url;
+					marker.fullname = mapResp.fullname;
+					marker.responseId = mapResp.id;
+					marker.thumbsUp = mapResp.thumbs_up;
+					marker.voteCount = parseInt(mapResp.vote_count);
 					marker.infoWindow = new google.maps.InfoWindow();
-
-					marker.infoWindow.setContent(contentString);
 
 					markers.push(marker);
 
@@ -183,12 +164,8 @@
 						$('.response-fullname').text(this.fullname + '\'s Image Response');
 
 						var buttonClass = 'btn-default';
-
 						if (this.thumbsUp) {
 							buttonClass = 'btn-primary';
-						}
-						else {
-							buttonClass = 'btn-default';
 						}
 
 						var contentString = '<div id="content">' +
@@ -220,7 +197,7 @@
 					return (a.distanceToCentre - b.distanceToCentre);
 				});
 
-				// Only fit the view to a maximum of 20 closest markers
+				// Only fit the view to a maximum of 28 closest markers
 				var numVisibleMarkers = markers.length >= 28 ? 28 : markers.length;
 
 				for (var i = 0; i < numVisibleMarkers; i++) {
