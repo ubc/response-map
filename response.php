@@ -19,20 +19,7 @@
 ?>
 <html>
 	<head>
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-		<script src="https://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
-
-		<link rel="stylesheet" href="css/jquery.fileupload.css">
-		<link rel="stylesheet" href="css/response-map.css">
-		<script src="js/jquery.ui.widget.js"></script>
-		<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-		<script src="js/jquery.iframe-transport.js"></script>
-		<!-- The basic File Upload plugin -->
-		<script src="js/jquery.fileupload.js"></script>
+		<?php include('html/header.html'); ?>
 
 		<script>
 			/*jslint unparam: true */
@@ -82,16 +69,14 @@
 	<form action="index.php" method="post">
 		<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_POST['lis_result_sourcedid'] ?>">
 
-		<?php if ($display_name_loc) {?>
-			<div class="input-group">
-				<span class="input-group-addon">Name</span>
-				<input type="text" class="form-control user-fullname" name="user_fullname">
-			</div>
-			<div class="input-group">
-				<span class="input-group-addon">Location</span>
-				<input type="text" class="form-control user-location" name="user_location">
-			</div>
-		<?php } ?>
+		<div class="input-group">
+			<span class="input-group-addon">Name</span>
+			<input type="text" class="form-control user-fullname" name="user_fullname">
+		</div>
+		<div class="input-group">
+			<span class="input-group-addon">Location</span>
+			<input type="text" class="form-control user-location" name="user_location">
+		</div>
 		<div class="input-group">
 			<?php $response_label = 'Response'; ?>
 			<?php 
@@ -100,7 +85,7 @@
 			}	
 			?>
 			<span class="input-group-addon"><?php echo $response_label; ?></span>
-			<input type="text" class="form-control user-response" name="user_response">
+			<textarea class="form-control user-response" rows="5" name="user_response"></textarea>
 		</div>
 
 		<div class="upload-group">
@@ -108,7 +93,7 @@
 			<span class="filelimit"><?php echo 'Maximum file size is ' . (return_bytes(ini_get('post_max_size')) / 1024 / 1024) . ' MB'; ?></span>
 			<span class="btn btn-primary fileinput-button">
 				<i class="glyphicon glyphicon-plus"></i> Upload Image
-				<span id="uploadtext"><?php echo $selecttext; ?></span>
+				<!--<span id="uploadtext"><?php //echo $selecttext; ?></span>-->
 				<!-- The file input field used as target for the file upload widget -->
 				<input id="fileupload" type="file" name="imagefile">
 			</span>

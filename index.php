@@ -15,7 +15,7 @@
 	$lti = new Lti();
 	$lti->require_valid(); // Returns error message if not a valid LTI request
 
-	$question_id = end(explode('-', $_SESSION[$_POST['lis_result_sourcedid']]['resource_link_id']));
+	$question_id = end(explode('-', $_SESSION['lti']['resource_link_id']));
 
 	require_once('config.php');
 
@@ -26,7 +26,6 @@
 
 	$student_responses = array();
 	$all_text = '';
-	$display_name_loc = true;
 	$null = NULL;
 
 	require_once('process-text.php');
@@ -35,8 +34,7 @@
 	$_POST = escapeUserInput($_POST);
 
 	// Check to see if student has submitted fullname and location
-	//$select_user_query = mysqli_query($conn, 'SELECT fullname, location, lat, lng FROM user WHERE user_id = "' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '"');
-	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION[$_POST['lis_result_sourcedid']]['user_id'] . '" LIMIT 1');
+	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION['lti']['user_id'] . '" LIMIT 1');
 	$user_row = mysqli_fetch_object($select_user_query);
 	$select_resource_query = mysqli_query($conn, 'SELECT id FROM resource WHERE map_id="' . $question_id . '" LIMIT 1');
 	$resource_row = mysqli_fetch_object($select_resource_query);
@@ -45,28 +43,28 @@
 	if (empty($user_row)) {
 		$add_user_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_user_query, 'INSERT INTO user (userId, create_time) VALUES(?, ?)');
-		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION[$_POST['lis_result_sourcedid']]['user_id'], $null);
+		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION['lti']['user_id'], $null);
 		mysqli_stmt_execute($add_user_query);
-		$userId = mysqli_stmt_insert_id($add_user_query);
+		$_SESSION['user'] = array('id' => mysqli_stmt_insert_id($add_user_query));
 		mysqli_stmt_close($add_user_query);
 	} else {
-		$userId = $user_row->id;
+		$_SESSION['user'] = array('id' => $user_row->id);
 	}
 
 	// if map does not exist in the system, add the resource
 	if (empty($resource_row)) {
 		$add_resource_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
-		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION[$_POST['lis_result_sourcedid']]['context_id'], $question_id, $null);
+		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['lti']['context_id'], $question_id, $null);
 		mysqli_stmt_execute($add_resource_query);
-		$resourceId = mysqli_stmt_insert_id($add_resource_query);
+		$_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query));
 		mysqli_stmt_close($add_resource_query);
 	} else {
-		$resourceId = $resource_row->id;
+		$_SESSION['resource'] = array('id' => $resource_row->id, 'map_id' => $question_id);
 	}
 
 	// if user exists
-	if ($userId && $resourceId) {
+	if ($_SESSION['user']['id'] && $_SESSION['resource']['id']) {
 		if (!empty($_POST['user_location'])) {
 			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
 			if ($geocode->status === "OK") {
@@ -84,7 +82,7 @@
 					'INSERT INTO response (user_id, resource_id, head, description, location, latitude, longitude, '.
 					'image_url, thumbnail_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 				);
-				$test = mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $userId, $resourceId,
+				$test = mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
 					$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
 					$image, $thumbnail, $null);
 				$test = mysqli_stmt_execute($insert_response_query);
@@ -97,7 +95,7 @@
 
 		// query for all the submitted responses
 		$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
-			'FROM response WHERE resource_id = "' . $resourceId . '"');
+			'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
 		while ($object = mysqli_fetch_object($select_response_query)) {
 			$tmp = new stdClass();
 			$tmp->id = $object->id;
@@ -116,7 +114,7 @@
 			$student_responses[] = $tmp;
 		}
 
-		$select_response_query = mysqli_query($conn, 'SELECT count(*) as count FROM response WHERE resource_id = "' . $resourceId . '" AND user_id = "' . $userId . '"');
+		$select_response_query = mysqli_query($conn, 'SELECT count(*) as count FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '" AND user_id = "' . $_SESSION['user']['id'] . '"');
 		$count = mysqli_fetch_object($select_response_query)->count;
 
 		if ($count > 0) {

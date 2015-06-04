@@ -28,6 +28,10 @@ span.filelimit {
 	margin-bottom: 10px;
 }
 
+.input-group-addon {
+    min-width: 10em;
+}
+
 input.question-did {
 	display: none;
 }

@@ -1,13 +1,13 @@
 <?php
 	// Only return mark is scoring is enabled
-	if (!empty($_SESSION[$_POST['lis_result_sourcedid']]['lis_outcome_service_url'])) {
+	if (!empty($_SESSION['lti']['lis_outcome_service_url'])) {
 		// Give participation mark
 		$student_grade = 1;
 
 		$grade_message = 'Thanks for responding. You have been given participation mark.';
 
-		$outcome_url = $_SESSION[$_POST['lis_result_sourcedid']]['lis_outcome_service_url'];
-		$consumer_key = $_SESSION[$_POST['lis_result_sourcedid']]['oauth_consumer_key'];
+		$outcome_url = $_SESSION['lti']['lis_outcome_service_url'];
+		$consumer_key = $_SESSION['lti']['oauth_consumer_key'];
 		$consumer_secret = '123456';
 
 		$hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
@@ -165,8 +165,9 @@
 						draggable: false
 					});
 
-					if (<?php echo $userId ?> == mapResponses[key].user_id) {
+					if (<?php echo $_SESSION['user']['id'] ?> == mapResponses[key].user_id) {
 						marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+						mapResponses[key].myMarker = true;
 					}
 
 					marker.distanceToCentre = mapResponses[key].distanceToCentre;
@@ -228,8 +229,11 @@
 
 						contentString +=			'<div class="vote-group"><button type="button" class="vote-btn btn ' + buttonClass + ' btn-xs" onclick="toggleThumbsUp(' + this.responseId + ', this)"><i class="fa fa-thumbs-o-up"></i></button>' +
 													'<span class="vote-count">' + this.voteCount + '</span></div>' +
-												'</div>' +
-											'</div>';
+												'</div>';
+						if (this.myMarker) {
+							contentString += '<a href="edit_response.php?id=' + this.responseId + '">Edit</a>';
+						}
+						contentString += '</div>';
 
 						this.infoWindow.setContent(contentString);
 
