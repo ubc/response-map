@@ -1,5 +1,40 @@
 <?php
-    session_start()
+    session_start();
+    $session_id = session_id();
+
+    require_once('config.php');
+    require_once('process-text.php');
+
+    if (mysqli_connect_error()) {
+        echo 'Failed to connect to question database: ' . mysqli_connect_error();
+        die();
+    }
+
+    // query for all the submitted responses
+    $student_responses = array();
+    $all_text = '';
+    $select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
+        'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
+    while ($object = mysqli_fetch_object($select_response_query)) {
+        $tmp = new stdClass();
+        $tmp->id = $object->id;
+        $tmp->user_id = $object->user_id;
+        $tmp->response = $object->description;
+        $tmp->image_url = $object->image_url;
+        $tmp->thumbnail_url = $object->thumbnail_url;
+        $tmp->vote_count = $object->vote_count;
+        $tmp->thumbs_up = false;    //TODO: FIX
+        $tmp->fullname = $object->head;
+        $tmp->location = $object->location;
+        $tmp->lat = $object->latitude;
+        $tmp->lng = $object->longitude;
+
+        $all_text .= ' ' . $tmp->response;
+        $student_responses[] = $tmp;
+    }
+
+    $all_student_responses = json_encode($student_responses);
+    $word_frequency = json_encode(wordCount($all_text));
 ?>
 <html>
 	<head>
@@ -207,10 +242,6 @@
 			// Plotting word cloud
 			$(function() {
 				var frequencyList = <?php echo $word_frequency ?>;
-				console.log("AAA");
-				console.log(frequencyList);
-				console.log("BBB");
-				
 				var color_range = ['#ddd', '#ccc', '#bbb', '#aaa', '#999', '#888', '#777', '#666', '#555', '#444', '#333', '#222'];
 				var use_color = false;
 				<?php if(isset($_POST['custom_usecolor']) && $_POST['custom_usecolor'] == 'true') { ?>

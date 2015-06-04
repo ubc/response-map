@@ -15,6 +15,13 @@
 		return $val;
 	}
 
+    require_once('config.php');
+
+    if (mysqli_connect_error()) {
+        echo 'Failed to connect to question database: ' . mysqli_connect_error();
+        die();
+}
+
 	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
 
     if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {

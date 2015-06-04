@@ -24,8 +24,6 @@
 		die();
 	}
 
-	$student_responses = array();
-	$all_text = '';
 	$null = NULL;
 
 	require_once('process-text.php');
@@ -63,40 +61,16 @@
 		$_SESSION['resource'] = array('id' => $resource_row->id, 'map_id' => $question_id);
 	}
 
-	// if user exists
+	// if user and resource exists
 	if ($_SESSION['user']['id'] && $_SESSION['resource']['id']) {
-		// query for all the submitted responses
-		$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
-			'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
-		while ($object = mysqli_fetch_object($select_response_query)) {
-			$tmp = new stdClass();
-			$tmp->id = $object->id;
-			$tmp->user_id = $object->user_id;
-			$tmp->response = $object->description;
-			$tmp->image_url = $object->image_url;
-			$tmp->thumbnail_url = $object->thumbnail_url;
-			$tmp->vote_count = $object->vote_count;
-			$tmp->thumbs_up = false;    //TODO: FIX
-			$tmp->fullname = $object->head;
-			$tmp->location = $object->location;
-			$tmp->lat = $object->latitude;
-			$tmp->lng = $object->longitude;
-
-			$all_text .= ' ' . $tmp->response;
-			$student_responses[] = $tmp;
-		}
-
 		$select_response_query = mysqli_query($conn, 'SELECT count(*) as count FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '" AND user_id = "' . $_SESSION['user']['id'] . '"');
 		$count = mysqli_fetch_object($select_response_query)->count;
 
 		if ($count > 0) {
-			$all_student_responses = json_encode($student_responses);
-			$word_frequency = json_encode(wordCount($all_text));
-			$postvars = $_POST;
 			// Show map
-			require('map.php');
+			header('Location: map.php');
 		} else {
-			require 'response.php';
+			header('Location: response.php');
 		}
 	}
 ?>

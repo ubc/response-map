@@ -2,6 +2,11 @@
     session_start();
     require_once('config.php');
 
+    if (mysqli_connect_error()) {
+        echo 'Failed to connect to question database: ' . mysqli_connect_error();
+        die();
+    }
+
     $id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 
     if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])) {
