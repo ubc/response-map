@@ -10,6 +10,7 @@
 	}
 
 	require_once('lti.php');
+	require_once('config.php');
 
 	/* Check if a valid lti request received */
 	$lti = new Lti();
@@ -17,19 +18,12 @@
 
 	$question_id = end(explode('-', $_SESSION['lti']['resource_link_id']));
 
-	require_once('config.php');
-
 	if (mysqli_connect_error()) {
 		echo 'Failed to connect to question database: ' . mysqli_connect_error();
 		die();
 	}
 
 	$null = NULL;
-
-	require_once('process-text.php');
-
-	// Ensure that the name, location and response are http and quote escaped
-	$_POST = escapeUserInput($_POST);
 
 	// Check to see if student has submitted fullname and location
 	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION['lti']['user_id'] . '" LIMIT 1');

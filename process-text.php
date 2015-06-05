@@ -6,21 +6,10 @@ function removeCommonWords($input){
  
 	return preg_replace('/\b('.implode('|',$commonWords).')\b/','',$input);
 }
-function escapeUserInput($input) {
-	// Ensure that the name, location and response are http and quote escaped, and trimmed
-	if (!empty($input['user_response'])) {
-		$input['user_response'] = trim(htmlspecialchars($input['user_response'], ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML5, 'UTF-8'));
-	}
 
-	if (!empty($input['user_fullname'])) {
-		$input['user_fullname'] = trim(htmlspecialchars($input['user_fullname'], ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML5, 'UTF-8'));
-	}
-
-	if (!empty($input['user_location'])) {
-		$input['user_location'] = trim(htmlspecialchars($input['user_location'], ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML5, 'UTF-8'));
-	}
-
-	return $input;
+function escapeInput($input) {
+    // Ensure that $input is http, quote escaped, and trimmed
+    return trim(htmlspecialchars($input, ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML5, 'UTF-8'));
 }
 
 function wordCount($all_text) {

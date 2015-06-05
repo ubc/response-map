@@ -10,14 +10,15 @@
     $id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 
     if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])) {
-        $head = empty($_POST['user_fullname']) ? NULL: $_POST['user_fullname'];
-        $description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
+        $resp = array_map('escapeInput', $_POST);
+        $head = empty($resp['user_fullname']) ? NULL: $resp['user_fullname'];
+        $description = empty($resp['user_response']) ? NULL: $resp['user_response'];
         $update_response_query = mysqli_stmt_init($conn);
-        $geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
+        $geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($resp['user_location']) . "&sensor=false&key=" . $google_key));
         if ($geocode->status === "OK") {
             mysqli_stmt_prepare($update_response_query, 'UPDATE response SET head=?, description=?, location=?, ' .
               'latitude=?, longitude=? WHERE id=?');
-            mysqli_stmt_bind_param($update_response_query, 'sssddi', $head, $description, $_POST['user_location'],
+            mysqli_stmt_bind_param($update_response_query, 'sssddi', $head, $description, $resp['user_location'],
                 $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng, $id);
             mysqli_stmt_execute($update_response_query);
             header('Location: index.php');

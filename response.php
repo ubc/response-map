@@ -17,6 +17,7 @@
 
 	session_start();
 	require_once('config.php');
+	require_once('process-text.php');
 
 	if (mysqli_connect_error()) {
 		echo 'Failed to connect to question database: ' . mysqli_connect_error();
@@ -26,15 +27,16 @@
 	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
-		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
+		$response = array_map('escapeInput', $_POST);
+		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($response['user_location']) . "&sensor=false&key=" . $google_key));
 		if ($geocode->status === "OK") {
-			$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
-			$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
+			$head = empty($response['user_fullname']) ? NULL : $response['user_fullname'];
+			$description = empty($response['user_response']) ? NULL: $response['user_response'];
 			$image = NULL;
 			$thumbnail = NULL;
-			if (!empty($_POST['user_image_url']) && !empty($_POST['user_thumbnail_url'])) {
-				$image = $_POST['user_image_url'];
-				$thumbnail = $_POST['user_thumbnail_url'];
+			if (!empty($response['user_image_url']) && !empty($response['user_thumbnail_url'])) {
+				$image = $response['user_image_url'];
+				$thumbnail = $response['user_thumbnail_url'];
 			}
 
 			$insert_response_query = mysqli_stmt_init($conn);
