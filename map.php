@@ -259,29 +259,30 @@
 		</script>
 	</head>
 
-	<div id="map-canvas"></div>
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-						<span class="sr-only">Close</span>
-					</button>
-					<h4 class="modal-title response-fullname"></h4>
-				</div>
-				<div class="modal-body">
-					<img class="response-full-image" src="">
+	<body>
+		<?php if (isset($_GET['success'])) { ?>
+			<div class="alert alert-success" role="alert">Thank you for posting, please refresh to see the cloud tag.</div>
+		<?php } ?>
+		<div id="map-canvas"></div>
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+							<span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title response-fullname"></h4>
+					</div>
+					<div class="modal-body">
+						<img class="response-full-image" src="">
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<?php if(isset($_POST['custom_showcloud']) && $_POST['custom_showcloud'] == 'true') { ?>
-		<div class="response-word-cloud"></div>
-	<?php } else {
-	?>
-		<div class="alert alert-success" role="alert">Thank you for posting, please refresh to see the cloud tag.</div>
-	<?php
-	} ?>
+		<?php if(isset($_POST['custom_showcloud']) && $_POST['custom_showcloud'] == 'true') { ?>
+			<div class="response-word-cloud"></div>
+		<?php } ?>
+	</body>
 </html>
