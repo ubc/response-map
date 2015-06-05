@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS `feedback` (
   `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   FOREIGN KEY (`response_id`) REFERENCES `response` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  UNIQUE no_duplicates(`user_id`, `response_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 SET foreign_key_checks = 1;
