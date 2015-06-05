@@ -55,7 +55,7 @@
 		mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
 		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['lti']['context_id'], $question_id, $null);
 		mysqli_stmt_execute($add_resource_query);
-		$_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query));
+		$_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query), 'map_id' => $question_id);
 		mysqli_stmt_close($add_resource_query);
 	} else {
 		$_SESSION['resource'] = array('id' => $resource_row->id, 'map_id' => $question_id);

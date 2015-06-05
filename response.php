@@ -15,6 +15,7 @@
 		return $val;
 	}
 
+    session_start();
     require_once('config.php');
 
     if (mysqli_connect_error()) {
@@ -100,8 +101,8 @@
 		</script>
 	</head>
 	
-	<form action="index.php" method="post">
-		<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_POST['lis_result_sourcedid'] ?>">
+	<form action="response.php" method="post">
+		<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_SESSION['lti']['lis_result_sourcedid'] ?>">
 
 		<div class="input-group">
 			<span class="input-group-addon">Name</span>

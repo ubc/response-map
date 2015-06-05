@@ -14,8 +14,12 @@
 	$student_responses = array();
 	$all_text = '';
 	$start = null;
-	$select_response_query = mysqli_query($conn, 'SELECT id, user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, vote_count '.
-		'FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '"');
+	$select_response_query = mysqli_query($conn,
+		'SELECT response.id, response.user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, COALESCE(SUM(feedback.vote_count), 0) as vote_count '.
+		'FROM response '.
+		'LEFT JOIN feedback ON response.id=feedback.response_id ' .
+		'WHERE response.resource_id = "' . $_SESSION['resource']['id'] . '" ' .
+		'GROUP BY response.id');
 	while ($object = mysqli_fetch_object($select_response_query)) {
 		$tmp = new stdClass();
 		$tmp->id = $object->id;
@@ -24,7 +28,7 @@
 		$tmp->image_url = $object->image_url;
 		$tmp->thumbnail_url = $object->thumbnail_url;
 		$tmp->vote_count = $object->vote_count;
-		$tmp->thumbs_up = false;    //TODO: FIX
+		$tmp->thumbs_up = $object->vote_count > 0;
 		$tmp->fullname = $object->head;
 		$tmp->location = $object->location;
 		$tmp->lat = $object->latitude;
@@ -76,24 +80,15 @@
 					}),
 					dataType: 'json',
 					success: function(data) {
-						console.log(data);
-						console.log(element);
 						var voteCountElem = $($(element).parent().find('.vote-count')[0]);
 
 						if (data.vote) {
-							if (!$(element).hasClass('btn-primary')) {
-								openedMarker.voteCount = openedMarker.voteCount + 1;
-							}
-
+							openedMarker.voteCount++;
 							$(element).removeClass('btn-default');
 							$(element).addClass('btn-primary');
 							openedMarker.thumbsUp = true;
-						}
-						else {
-							if (!$(element).hasClass('btn-default')) {
-								openedMarker.voteCount = openedMarker.voteCount - 1;
-							}
-
+						} else {
+							openMarker.voteCount--;
 							$(element).removeClass('btn-primary');
 							$(element).addClass('btn-default');
 							openedMarker.thumbsUp = false;
