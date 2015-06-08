@@ -29,7 +29,7 @@
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
 		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
-		if ($geocode->status === "OK" and false) {
+		if ($geocode->status === "OK") {
 			$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
 			$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
 			$image = NULL;
@@ -124,11 +124,11 @@
 
 			<div class="input-group">
 				<span class="input-group-addon">Name</span>
-				<input type="text" class="form-control user-fullname" name="user_fullname">
+				<input type="text" class="form-control user-fullname" name="user_fullname" value="<?php echo isset($_POST['user_fullname']) ? $_POST['user_fullname'] : '' ?>">
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon">Location</span>
-				<input type="text" class="form-control user-location" name="user_location">
+				<input type="text" class="form-control user-location" name="user_location" value="<?php echo isset($_POST['user_location']) ? $_POST['user_location'] : '' ?>">
 			</div>
 			<div class="input-group">
 				<?php $response_label = 'Response'; ?>
@@ -138,7 +138,7 @@
 				}
 				?>
 				<span class="input-group-addon"><?php echo $response_label; ?></span>
-				<textarea class="form-control user-response" rows="5" name="user_response"></textarea>
+				<textarea class="form-control user-response" rows="5" name="user_response" ><?php echo isset($_POST['user_response']) ? $_POST['user_response'] : '' ?></textarea>
 			</div>
 
 			<div class="upload-group">
@@ -162,13 +162,13 @@
 						<span>Preview</span>
 					</div>
 					<div class="panel-body">
-						<img id="image-preview">
+						<img id="image-preview" <?php echo isset($_POST['user_thumbnail_url']) ? 'src="'.$_POST['user_thumbnail_url'].'""' : '' ?>>
 					</div>
 				</div>
 			</div>
 
-			<input type="text" class="image-url" name="user_image_url">
-			<input type="text" class="thumbnail-url" name="user_thumbnail_url">
+			<input type="text" class="image-url" name="user_image_url" value="<?php echo isset($_POST['user_image_url']) ? $_POST['user_image_url'] : '' ?>">
+			<input type="text" class="thumbnail-url" name="user_thumbnail_url" value="<?php echo isset($_POST['user_thumbnail_url']) ? $_POST['user_thumbnail_url'] : '' ?>">
 
 			<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
 
