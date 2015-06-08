@@ -27,16 +27,15 @@
 	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
-		$response = array_map('escapeInput', $_POST);
-		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($response['user_location']) . "&sensor=false&key=" . $google_key));
+		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
 		if ($geocode->status === "OK") {
-			$head = empty($response['user_fullname']) ? NULL : $response['user_fullname'];
-			$description = empty($response['user_response']) ? NULL: $response['user_response'];
+			$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
+			$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
 			$image = NULL;
 			$thumbnail = NULL;
-			if (!empty($response['user_image_url']) && !empty($response['user_thumbnail_url'])) {
-				$image = $response['user_image_url'];
-				$thumbnail = $response['user_thumbnail_url'];
+			if (!empty($_POST['user_image_url']) && !empty($_POST['user_thumbnail_url'])) {
+				$image = $_POST['user_image_url'];
+				$thumbnail = $_POST['user_thumbnail_url'];
 			}
 
 			$insert_response_query = mysqli_stmt_init($conn);
@@ -49,6 +48,7 @@
 				$image, $thumbnail, $null);
 			mysqli_stmt_execute($insert_response_query);
 			mysqli_stmt_close($insert_response_query);
+			// send back a grade
 			include('grade.php');
 			header('Location: map.php?success=1');
 		}

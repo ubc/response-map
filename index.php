@@ -25,14 +25,26 @@
 
 	$null = NULL;
 
-	// Check to see if student has submitted fullname and location
-	$select_user_query = mysqli_query($conn, 'SELECT id FROM user WHERE userId="' . $_SESSION['lti']['user_id'] . '" LIMIT 1');
-	$user_row = mysqli_fetch_object($select_user_query);
-	$select_resource_query = mysqli_query($conn, 'SELECT id FROM resource WHERE map_id="' . $question_id . '" LIMIT 1');
-	$resource_row = mysqli_fetch_object($select_resource_query);
+	// Check to see if user exists
+	$select_user_query = mysqli_stmt_init($conn);
+	mysqli_stmt_prepare($select_user_query, 'SELECT id FROM user WHERE userId=? LIMIT 1');
+	mysqli_stmt_bind_param($select_user_query, 'i', $_SESSION['lti']['user_id']);
+	mysqli_stmt_execute($select_user_query);
+	mysqli_stmt_bind_result($select_user_query, $userId);
+	mysqli_stmt_fetch($select_user_query);
+	mysqli_stmt_close($select_user_query);
+
+	// Check to see if resource exists
+	$select_resource_query = mysqli_stmt_init($conn);
+	mysqli_stmt_prepare($select_resource_query, 'SELECT id FROM resource WHERE map_id=? LIMIT 1');
+	mysqli_stmt_bind_param($select_resource_query, 'i', $question_id);
+	mysqli_stmt_execute($select_resource_query);
+	mysqli_stmt_bind_result($select_resource_query, $resourceId);
+	mysqli_stmt_fetch($select_resource_query);
+	mysqli_stmt_close($select_resource_query);
 
 	// if user does not exist in the system, add the user
-	if (empty($user_row)) {
+	if (!$userId) {
 		$add_user_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_user_query, 'INSERT INTO user (userId, create_time) VALUES(?, ?)');
 		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION['lti']['user_id'], $null);
@@ -40,11 +52,11 @@
 		$_SESSION['user'] = array('id' => mysqli_stmt_insert_id($add_user_query));
 		mysqli_stmt_close($add_user_query);
 	} else {
-		$_SESSION['user'] = array('id' => $user_row->id);
+		$_SESSION['user'] = array('id' => $userId);
 	}
 
 	// if map does not exist in the system, add the resource
-	if (empty($resource_row)) {
+	if (!$resourceId) {
 		$add_resource_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
 		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['lti']['context_id'], $question_id, $null);
@@ -52,13 +64,18 @@
 		$_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query), 'map_id' => $question_id);
 		mysqli_stmt_close($add_resource_query);
 	} else {
-		$_SESSION['resource'] = array('id' => $resource_row->id, 'map_id' => $question_id);
+		$_SESSION['resource'] = array('id' => $resourceId, 'map_id' => $question_id);
 	}
 
 	// if user and resource exists
 	if ($_SESSION['user']['id'] && $_SESSION['resource']['id']) {
-		$select_response_query = mysqli_query($conn, 'SELECT count(*) as count FROM response WHERE resource_id = "' . $_SESSION['resource']['id'] . '" AND user_id = "' . $_SESSION['user']['id'] . '"');
-		$count = mysqli_fetch_object($select_response_query)->count;
+		$count_query = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($count_query, 'SELECT count(*) as count FROM response WHERE resource_id=? AND user_id=?');
+		mysqli_stmt_bind_param($count_query, 'ii', $_SESSION['resource']['id'], $_SESSION['user']['id']);
+		mysqli_stmt_execute($count_query);
+		mysqli_stmt_bind_result($count_query, $count);
+		mysqli_stmt_fetch($count_query);
+		mysqli_stmt_close($count_query);
 
 		if ($count > 0) {
 			// Show map

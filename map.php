@@ -10,37 +10,42 @@
 		die();
 	}
 
-	// query for all the submitted responses
 	$student_responses = array();
+	$row = array();
 	$all_text = '';
 	$start = null;
-	$select_response_query = mysqli_query($conn,
-		'SELECT response.id, response.user_id, head, description, location, latitude, longitude, image_url, thumbnail_url, COALESCE(SUM(feedback.vote_count), 0) as vote_count '.
-		'FROM response '.
-		'LEFT JOIN feedback ON response.id=feedback.response_id ' .
-		'WHERE response.resource_id = "' . $_SESSION['resource']['id'] . '" ' .
-		'GROUP BY response.id');
-	while ($object = mysqli_fetch_object($select_response_query)) {
-		$tmp = new stdClass();
-		$tmp->id = $object->id;
-		$tmp->user_id = $object->user_id;
-		$tmp->response = $object->description;
-		$tmp->image_url = $object->image_url;
-		$tmp->thumbnail_url = $object->thumbnail_url;
-		$tmp->vote_count = $object->vote_count;
-		$tmp->thumbs_up = $object->vote_count > 0;
-		$tmp->fullname = $object->head;
-		$tmp->location = $object->location;
-		$tmp->lat = $object->latitude;
-		$tmp->lng = $object->longitude;
+	$query = 'SELECT r.id, r.user_id, head as fullname, description as response, location, latitude as lat, longitude as lng, ' .
+		'image_url, thumbnail_url, COALESCE(SUM(f.vote_count), 0) as vote_count ' .
+		'FROM response as r ' .
+		'LEFT JOIN feedback as f ON r.id=f.response_id ' .
+		'WHERE r.resource_id=? ' .
+		'GROUP BY r.id';
+	$select_response_query = mysqli_stmt_init($conn);
+	mysqli_stmt_prepare($select_response_query, $query);
+	mysqli_stmt_bind_param($select_response_query, 'i', $_SESSION['resource']['id']);
+	mysqli_stmt_execute($select_response_query);
+	// get the fields
+	$response_meta = mysqli_stmt_result_metadata($select_response_query);
+	$parameters = array($select_response_query);
+	while ($field = mysqli_fetch_field($response_meta)) {
+		$parameters[] = &$row[$field->name];
+	}
+	call_user_func_array("mysqli_stmt_bind_result", $parameters);
 
-		if ($_SESSION['user']['id'] == $tmp->user_id) {
-			$start = $tmp;
+	while (mysqli_stmt_fetch($select_response_query)) {
+		$tmp = new stdClass();
+		foreach ($row as $key => $val) {
+			$tmp->$key = $val;
 		}
+		$tmp->thumbs_up = $tmp->vote_count > 0;
+
+		if ($tmp->user_id == $_SESSION['user']['id'])
+			$start = $tmp;
 
 		$all_text .= ' ' . $tmp->response;
 		$student_responses[] = $tmp;
 	}
+	mysqli_stmt_close($select_response_query);
 
 	$start = json_encode($start);
 	$all_student_responses = json_encode($student_responses);
