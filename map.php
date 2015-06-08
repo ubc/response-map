@@ -265,8 +265,8 @@
 	</head>
 
 	<body>
-		<?php if (isset($_GET['success'])) { ?>
-			<div class="alert alert-success" role="alert">Thank you for posting, please refresh to see the cloud tag.</div>
+		<?php if (!empty($_GET['message'])) { ?>
+			<div class="alert alert-success" role="alert"><?php echo $_GET['message'] ?></div>
 		<?php } ?>
 		<div id="map-canvas"></div>
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -286,7 +286,7 @@
 			</div>
 		</div>
 
-		<?php if(isset($_POST['custom_showcloud']) && $_POST['custom_showcloud'] == 'true') { ?>
+		<?php if(isset($_SESSION['lti']['custom_showcloud']) && $_SESSION['lti']['custom_showcloud'] == 'true') { ?>
 			<div class="response-word-cloud"></div>
 		<?php } ?>
 	</body>

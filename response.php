@@ -17,7 +17,7 @@
 
 	session_start();
 	require_once('config.php');
-	require_once('process-text.php');
+	require_once('grade.php');
 
 	if (mysqli_connect_error()) {
 		echo 'Failed to connect to question database: ' . mysqli_connect_error();
@@ -25,10 +25,11 @@
 }
 
 	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
+	$success = false;
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
 		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
-		if ($geocode->status === "OK") {
+		if ($geocode->status === "OK" and false) {
 			$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];
 			$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
 			$image = NULL;
@@ -46,11 +47,22 @@
 			mysqli_stmt_bind_param($insert_response_query, 'issssddsss', $_SESSION['user']['id'], $_SESSION['resource']['id'],
 				$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
 				$image, $thumbnail, $null);
-			mysqli_stmt_execute($insert_response_query);
+			$success = mysqli_stmt_execute($insert_response_query);
 			mysqli_stmt_close($insert_response_query);
-			// send back a grade
-			include('grade.php');
-			header('Location: map.php?success=1');
+			if ($success) {
+				// send back a grade
+				$message = 'Thank you for posting.';
+				if (!empty($_SESSION['lti']['lis_outcome_service_url']))
+					$message .= ' You have been given a participation mark.';
+				if (isset($_SESSION['lti']['custom_showcloud']) && $_SESSION['lti']['custom_showcloud'] == 'true')
+					$message .= ' Please see the cloud tag.';
+				header('Location: map.php?message='.$message);
+			}
+		}
+
+		if (!$success) {
+			// generic error message for now.
+			$message = 'Error: Please try submitting again.';
 		}
 	}
 ?>
@@ -104,6 +116,9 @@
 	</head>
 
 	<body>
+	<?php if (!$success && isset($message)) {?>
+		<div class="alert alert-danger" role="alert"><?php echo $message ?></div>
+	<?php } ?>
 		<form action="response.php" method="post">
 			<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_SESSION['lti']['lis_result_sourcedid'] ?>">
 

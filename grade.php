@@ -1,10 +1,10 @@
 <?php
+session_start();
+require_once('lti.php');
 // Only return mark is scoring is enabled
-if (!empty($_SESSION['lti']['lis_outcome_service_url'])) {
+function sendGrade() {
     // Give participation mark
     $student_grade = 1;
-
-    $grade_message = 'Thanks for responding. You have been given participation mark.';
 
     $outcome_url = $_SESSION['lti']['lis_outcome_service_url'];
     $consumer_key = $_SESSION['lti']['oauth_consumer_key'];
