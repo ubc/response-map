@@ -25,7 +25,6 @@
 	}
 
 	$id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
-	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id']);
 	$success = false;
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])) {
@@ -72,6 +71,14 @@
 		mysqli_stmt_fetch($response_query);
 		mysqli_stmt_close($response_query);
 	}
+
+	if ($image_url) {
+		$assigned_filename = explode('/', $image_url);
+		$assigned_filename = explode('.', $assigned_filename);
+		$assigned_filename = $assigned_filename[0];
+	} else {
+		$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id'] . time());
+	}
 ?>
 <html>
 	<head>
@@ -88,7 +95,6 @@
 					url: url,
 					dataType: 'json',
 					done: function (e, data) {
-						console.log(data.result.imagefile);
 						$.each(data.result.imagefile, function (index, file) {
 							if(file.error) {
 								$('#errors').html('<p>Error: '+file.error+'</p>');
