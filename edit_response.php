@@ -94,18 +94,25 @@
 				$('#fileupload').fileupload({
 					url: url,
 					dataType: 'json',
+					start: function(e) {
+						$('#progress .progress-bar').css('width', '0%');
+						$('#image-message').hide();
+					},
 					done: function (e, data) {
 						$.each(data.result.imagefile, function (index, file) {
 							if(file.error) {
 								$('#errors').html('<p>Error: '+file.error+'</p>');
+								$('#image-message').hide();
 							} else {
 								$('#errors').html('');
-								$('#image-preview').attr('src', data.result.imagefile[0].thumbnailUrl + "?" + Math.random().toString());
+								$('#image-preview').show().attr('src', data.result.imagefile[0].thumbnailUrl + "?" + Math.random().toString());
 								//$('#player').attr('src','videoplayer.php?user_id=<?php //echo $hashedplayer_id; ?>');
 								$('#uploadtext').text('');
 
-								$('.image-url').val(data.result.imagefile[0].url);
-								$('.thumbnail-url').val(data.result.imagefile[0].thumbnailUrl);
+								$('#image-url').val(data.result.imagefile[0].url);
+								$('#thumbnail-url').val(data.result.imagefile[0].thumbnailUrl);
+								$('#image-message').show().text('The image has been successfully uploaded.');
+								$('#delete-image').show();
 							}
 						});
 					},
@@ -124,6 +131,31 @@
 					$('#player').height(''+(this.contentWindow.document.body.offsetHeight));
 				});
 			}
+			function deleteImage(id) {
+				$.post("delete-image.php",
+					{
+						id: id,
+						image: $('#image-url').val()
+					},
+					function(data) {
+						var result = $.parseJSON(data);
+						if (result['result']) {
+							$('#image-preview').hide().attr('src', '');
+							$('#delete-image').hide();
+							$('#image-url').val('');
+							$('#thumbnail-url').val('');
+							$('#progress .progress-bar').css('width', '0%');
+							$('#image-message').show().text('The image has been successfully deleted.');
+						}
+					}
+				)
+			}
+			$(document).ready(function() {
+				$('#image-message').hide();
+				if (!$('#image-url').val()) {
+					$('#delete-image').hide();
+				}
+			});
 			fixload();
 		</script>
 	</head>
@@ -131,6 +163,7 @@
 	<?php if (!$success && isset($message)) {?>
 		<div class="alert alert-danger" role="alert"><?php echo $message ?></div>
 	<?php } ?>
+	<div class="alert alert-success" id="image-message"></div>
 	<form action="edit_response.php" method="post">
 		<input type="hidden" name="id" value="<?php echo $id ?>">
 		<div class="input-group">
@@ -169,7 +202,10 @@
 			<div id="errors" class="error"></div>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<span>Preview</span>
+					<span>Preview
+						<button type="button" class="<?php $thumbnail_url ? '' : 'image-preview-none' ?> btn btn-s btn-danger"
+								id="delete-image" onclick="deleteImage(<?php echo $id ?>)"><i class="fa fa-trash-o"></i></button>
+					</span>
 				</div>
 				<div class="panel-body">
 					<img id="image-preview" src="<?php echo $thumbnail_url ?>">
@@ -177,8 +213,8 @@
 			</div>
 		</div>
 
-		<input type="text" class="image-url" name="user_image_url" value="<?php echo $image_url ?>">
-		<input type="text" class="thumbnail-url" name="user_thumbnail_url" value="<?php echo $thumbnail_url ?>">
+		<input type="hidden" id="image-url" name="user_image_url" value="<?php echo $image_url ?>">
+		<input type="hidden" id="thumbnail-url" name="user_thumbnail_url" value="<?php echo $thumbnail_url ?>">
 
 		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
 		<button type="submit" class="save-question btn btn-primary" name="submit" value="Edit">Edit</button>

@@ -48,10 +48,6 @@ input.question-did {
 	margin-top: 30px;
 }
 
-.image-url, .thumbnail-url {
-	display: none;
-}
-
 #map-canvas {
 	height: 65%;
 	width: 100%;
@@ -64,6 +60,10 @@ input.question-did {
 	display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.image-preview-none {
+    display: none;
 }
 
 .footer {
