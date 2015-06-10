@@ -1,6 +1,7 @@
 <?php
 	session_start();
 	require_once('config.php');
+	require_once('process-text.php');
 
 	function return_bytes($val) {
 		$val = trim($val);
@@ -28,6 +29,7 @@
 	$success = false;
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])) {
+		$_POST = array_map('escapeInput', $_POST);
 		$head = empty($_POST['user_fullname']) ? NULL: $_POST['user_fullname'];
 		$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
 		$image_url = NULL;

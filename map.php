@@ -85,7 +85,7 @@
 					}),
 					dataType: 'json',
 					success: function(data) {
-						var voteCountElem = $($(element).parent().find('.vote-count')[0]);
+						var voteCountElem = $($(element).find('.vote-count')[0]);
 
 						if (data.vote) {
 							openedMarker.voteCount++;
@@ -93,7 +93,7 @@
 							$(element).addClass('btn-primary');
 							openedMarker.thumbsUp = true;
 						} else {
-							openMarker.voteCount--;
+							openedMarker.voteCount--;
 							$(element).removeClass('btn-primary');
 							$(element).addClass('btn-default');
 							openedMarker.thumbsUp = false;
@@ -177,13 +177,17 @@
 							contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + this.thumbnailImageUrl + '" alt=""/></a>';
 						}
 
-						contentString +=			'<div class="vote-group"><button type="button" class="vote-btn btn ' + buttonClass + ' btn-xs" onclick="toggleThumbsUp(' + this.responseId + ', this)"><i class="fa fa-thumbs-o-up"></i></button>' +
-													'<span class="vote-count">' + this.voteCount + '</span></div>' +
-												'</div>';
+						contentString +=			'<div class="footer">' +
+														'<button type="button" class="vote-btn btn ' + buttonClass + ' btn-xs" onclick="toggleThumbsUp(' + this.responseId + ', this)">' +
+															'<i class="fa fa-thumbs-o-up"></i>' +
+															'<span class="vote-count">' + this.voteCount + '</span>' +
+														'</button>';
+
 						if (this.myMarker) {
-							contentString += '<a href="edit_response.php?id=' + this.responseId + '">Edit</a>';
+							contentString += '<a class="btn btn-default btn-xs edit-button" href="edit_response.php?id=' + this.responseId + '">Edit</a>';
 						}
-						contentString += '</div>';
+
+						contentString += '</div></div></div>';
 
 						this.infoWindow.setContent(contentString);
 

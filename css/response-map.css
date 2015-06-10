@@ -66,12 +66,16 @@ input.question-did {
     margin-right: auto;
 }
 
-.vote-group .vote-btn {
-	outline: none !important;
+.footer {
+	margin: 0.5em 0;
 }
 
-.vote-group .vote-count {
+.footer .vote-count {
 	margin-left: 5px;
 	display: inline-block;
 	vertical-align: middle;
+}
+
+.footer .edit-button {
+    margin-left: 1em;
 }

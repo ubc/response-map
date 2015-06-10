@@ -45,7 +45,7 @@
 				$query = 'INSERT INTO feedback (user_id, response_id, vote_count, create_time) VALUES (?, ?, 1, ?)';
 				$vote = 1;
 				mysqli_stmt_prepare($insert_vote_query, $query);
-				mysqli_stmt_bind_param($insert_vote_query, 'iis',$_SESSION['user']['id'], $_SESSION['resource']['id'], $null);
+				mysqli_stmt_bind_param($insert_vote_query, 'iis',$_SESSION['user']['id'], $respId, $null);
 			}
 			$success = mysqli_stmt_execute($insert_vote_query);
 			mysqli_stmt_close($insert_vote_query);
