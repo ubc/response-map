@@ -74,7 +74,7 @@
 
 	if ($image_url) {
 		$assigned_filename = explode('/', $image_url);
-		$assigned_filename = explode('.', $assigned_filename);
+		$assigned_filename = explode('.', end($assigned_filename));
 		$assigned_filename = $assigned_filename[0];
 	} else {
 		$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id'] . time());
