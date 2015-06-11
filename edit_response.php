@@ -24,6 +24,11 @@
 		die();
 	}
 
+	// custom form field names
+	$head_label = !empty($_SESSION['lti']['custom_head_label']) ? $_SESSION['lti']['custom_head_label'] : 'Name';
+	$location_label = !empty($_SESSION['lti']['custom_location_label']) ? $_SESSION['lti']['custom_location_label'] : 'Location';
+	$response_label = !empty($_SESSION['lti']['custom_response_label']) ? $_SESSION['lti']['custom_response_label'] : 'Response';
+
 	$id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 	$success = false;
 
@@ -168,20 +173,14 @@
 	<form action="edit_response.php" method="post">
 		<input type="hidden" name="id" value="<?php echo $id ?>">
 		<div class="input-group">
-			<span class="input-group-addon">Name</span>
+			<span class="input-group-addon"><?php echo $head_label ?></span>
 			<input type="text" class="form-control user-fullname" name="user_fullname" value="<?php echo $head ?>">
 		</div>
 		<div class="input-group">
-			<span class="input-group-addon">Location</span>
+			<span class="input-group-addon"><?php echo $location_label ?></span>
 			<input type="text" class="form-control user-location" name="user_location" value="<?php echo $location ?>">
 		</div>
 		<div class="input-group">
-			<?php $response_label = 'Response'; ?>
-			<?php
-			if(isset($_POST['custom_responsetext'])) {
-				$response_label = $_POST['custom_responsetext'];
-			}
-			?>
 			<span class="input-group-addon"><?php echo $response_label; ?></span>
 			<textarea class="form-control user-response" rows="5" name="user_response"><?php echo $description ?></textarea>
 		</div>
