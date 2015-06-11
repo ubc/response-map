@@ -69,7 +69,7 @@
 
 			// initialize to first response in case the user has no responses - eg. Instructor
 			var startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
-			var myResponse = '<?php echo $start ?>';
+			var myResponse = JSON.parse('<?php echo $start ?>');
 			if (myResponse) {
 				startLocation = new google.maps.LatLng(myResponse.lat, myResponse.lng)
 			}
@@ -127,7 +127,7 @@
 					nudgeLat = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
 					nudgeLng = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
 
-					mapResp.distanceToCentre = Math.sqrt(Math.pow(mapResp.lat - mapResp.lat, 2) + Math.pow(mapResp.lng - mapResp.lng, 2));
+					mapResp.distanceToCentre = Math.sqrt(Math.pow(mapResp.lat - startLocation.lat(), 2) + Math.pow(mapResp.lng - startLocation.lng(), 2));
 
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(mapResp.lat, mapResp.lng),
