@@ -127,7 +127,6 @@
 					nudgeLat = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
 					nudgeLng = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
 
-					mapResp.distanceToCentre = Math.sqrt(Math.pow(mapResp.lat - startLocation.lat(), 2) + Math.pow(mapResp.lng - startLocation.lng(), 2));
 
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(mapResp.lat, mapResp.lng),
@@ -140,7 +139,7 @@
 						mapResp.myMarker = true;
 					}
 
-					marker.distanceToCentre = mapResp.distanceToCentre;
+					marker.distanceToCentre = google.maps.geometry.spherical.computeDistanceBetween(startLocation, marker.position);
 					marker.fullname = mapResp.fullname;
 					marker.responseBody = mapResp.response;
 					marker.myMarker = mapResp.myMarker;
