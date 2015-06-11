@@ -1,14 +1,4 @@
 <?php
-	if (isset($_POST['session_id']) && $_POST['session_id']) {
-		$session_id = $_POST['session_id'];
-		session_id($_POST['session_id']);
-		session_start();
-	}
-	else {
-		session_start();
-		$session_id = session_id();
-	}
-
 	require_once('lti.php');
 	require_once('config.php');
 
