@@ -191,8 +191,8 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<span>Preview
-							<button type="button" class="<?php $thumbnail_url ? '' : 'image-preview-none' ?> btn btn-s btn-danger"
-									id="delete-image" onclick="deleteImage(<?php echo $id ?>)"><i class="fa fa-trash-o"></i></button>
+							<button type="button" class="btn btn-s btn-danger" id="delete-image"
+									onclick="deleteImage()"><i class="fa fa-trash-o"></i></button>
 						</span>
 					</div>
 					<div class="panel-body">
