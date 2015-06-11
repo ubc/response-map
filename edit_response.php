@@ -50,6 +50,7 @@
 			mysqli_stmt_close($update_response_query);
 		}
 		if ($success) {
+			require('grade.php');
 			$message = 'Your response updated successfully.';
 			header('Location: map.php?message='.$message);
 		} else {

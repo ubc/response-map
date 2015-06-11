@@ -17,7 +17,6 @@
 
 	session_start();
 	require_once('config.php');
-	require_once('grade.php');
 	require_once('process-text.php');
 
 	if (mysqli_connect_error()) {
@@ -55,6 +54,7 @@
 				// send back a grade
 				$message = 'Thank you for posting.';
 				if (!empty($_SESSION['lti']['lis_outcome_service_url']))
+					require('grade.php');
 					$message .= ' You have been given a participation mark.';
 				if (isset($_SESSION['lti']['custom_showcloud']) && $_SESSION['lti']['custom_showcloud'] == 'true')
 					$message .= ' Please see the cloud tag.';
