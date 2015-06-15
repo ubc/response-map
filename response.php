@@ -32,11 +32,11 @@
 	}
 
 	// custom form field names
-	$head_label = !empty($_SESSION['lti']['custom_head_label']) ? $_SESSION['lti']['custom_head_label'] : 'Name';
-	$location_label = !empty($_SESSION['lti']['custom_location_label']) ? $_SESSION['lti']['custom_location_label'] : 'Location';
-	$response_label = !empty($_SESSION['lti']['custom_response_label']) ? $_SESSION['lti']['custom_response_label'] : 'Response';
+	$head_label = !empty($_SESSION['config']['custom_head_label']) ? $_SESSION['config']['custom_head_label'] : 'Name';
+	$location_label = !empty($_SESSION['config']['custom_location_label']) ? $_SESSION['config']['custom_location_label'] : 'Location';
+	$response_label = !empty($_SESSION['config']['custom_response_label']) ? $_SESSION['config']['custom_response_label'] : 'Response';
 
-	$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id'] . time());
+	$assigned_filename = md5($_SESSION['config']['user_id'] . $_SESSION['resource']['map_id'] . time());
 	$success = false;
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
@@ -68,10 +68,10 @@
 			if ($success) {
 				// send back a grade
 				$message = 'Thank you for posting.';
-				if (!empty($_SESSION['lti']['lis_outcome_service_url']))
+				if (!empty($_SESSION['config']['lis_outcome_service_url']))
 					require('grade.php');
 					$message .= ' You have been given a participation mark.';
-				if (isset($_SESSION['lti']['custom_showcloud']) && $_SESSION['lti']['custom_showcloud'] == 'true')
+				if (isset($_SESSION['config']['custom_showcloud']) && $_SESSION['config']['custom_showcloud'] == 'true')
 					$message .= ' Please see the cloud tag.';
 				header('Location: map.php?message='.$message);
 			}
@@ -168,7 +168,7 @@
 	<?php } ?>
 		<div class="alert alert-success" id="image-message"></div>
 		<form action="response.php" method="post">
-			<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_SESSION['lti']['lis_result_sourcedid'] ?>">
+			<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_SESSION['config']['lis_result_sourcedid'] ?>">
 
 			<div class="input-group">
 				<span class="input-group-addon"><?php echo $head_label ?></span>
@@ -215,7 +215,7 @@
 			<input type="hidden" id="image-url" name="user_image_url" value="<?php echo isset($_POST['user_image_url']) ? $_POST['user_image_url'] : '' ?>">
 			<input type="hidden" id="thumbnail-url" name="user_thumbnail_url" value="<?php echo isset($_POST['user_thumbnail_url']) ? $_POST['user_thumbnail_url'] : '' ?>">
 
-			<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
+			<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["config"]['user_id']; ?>" />
 
 			<button type="submit" class="save-question btn btn-primary" name="submit" value="Save">Save</button>
 		</form>

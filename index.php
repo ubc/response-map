@@ -6,7 +6,7 @@
 	$lti = new Lti();
 	$lti->require_valid(); // Returns error message if not a valid LTI request
 
-	$question_id = end(explode('-', $_SESSION['lti']['resource_link_id']));
+	$question_id = end(explode('-', $_SESSION['config']['resource_link_id']));
 
 	if (mysqli_connect_error()) {
 		echo 'Failed to connect to question database: ' . mysqli_connect_error();
@@ -18,7 +18,7 @@
 	// Check to see if user exists
 	$select_user_query = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($select_user_query, 'SELECT id FROM user WHERE userId=? LIMIT 1');
-	mysqli_stmt_bind_param($select_user_query, 'i', $_SESSION['lti']['user_id']);
+	mysqli_stmt_bind_param($select_user_query, 'i', $_SESSION['config']['user_id']);
 	mysqli_stmt_execute($select_user_query);
 	mysqli_stmt_bind_result($select_user_query, $userId);
 	mysqli_stmt_fetch($select_user_query);
@@ -37,7 +37,7 @@
 	if (!$userId) {
 		$add_user_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_user_query, 'INSERT INTO user (userId, create_time) VALUES(?, ?)');
-		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION['lti']['user_id'], $null);
+		mysqli_stmt_bind_param($add_user_query, "ss", $_SESSION['config']['user_id'], $null);
 		mysqli_stmt_execute($add_user_query);
 		$_SESSION['user'] = array('id' => mysqli_stmt_insert_id($add_user_query));
 		mysqli_stmt_close($add_user_query);
@@ -49,7 +49,7 @@
 	if (!$resourceId) {
 		$add_resource_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
-		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['lti']['context_id'], $question_id, $null);
+		mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['config']['context_id'], $question_id, $null);
 		mysqli_stmt_execute($add_resource_query);
 		$_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query), 'map_id' => $question_id);
 		mysqli_stmt_close($add_resource_query);
@@ -68,6 +68,7 @@
 		mysqli_stmt_close($count_query);
 
 		mysqli_close($conn);
+		print_r($_POST);
 
 		if ($count > 0) {
 			// Show map

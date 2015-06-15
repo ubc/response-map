@@ -7,12 +7,12 @@ if (empty($_SESSION['authenticated'])) {
 }
 
 // Only return mark is scoring is enabled
-if (!empty($_SESSION['lti']['lis_outcome_service_url'])) {
+if (!empty($_SESSION['config']['lis_outcome_service_url'])) {
 	// Give participation mark
 	$student_grade = 1;
 
-	$outcome_url = $_SESSION['lti']['lis_outcome_service_url'];
-	$consumer_key = $_SESSION['lti']['oauth_consumer_key'];
+	$outcome_url = $_SESSION['config']['lis_outcome_service_url'];
+	$consumer_key = $_SESSION['config']['oauth_consumer_key'];
 	$consumer_secret = '123456';
 
 	$hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
@@ -29,7 +29,7 @@ if (!empty($_SESSION['lti']['lis_outcome_service_url'])) {
 				<replaceResultRequest>
 					<resultRecord>
 						<sourcedGUID>
-							<sourcedId>' . $_SESSION['lti']['lis_result_sourcedid'] . '</sourcedId>
+							<sourcedId>' . $_SESSION['config']['lis_result_sourcedid'] . '</sourcedId>
 						</sourcedGUID>
 						<result>
 							<resultScore>

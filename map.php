@@ -67,7 +67,7 @@
 		<script type="text/javascript">
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
 			var mapResponses = JSON.parse(allStudentResponses);
-			var sourcedid = '<?php echo $_SESSION["lti"]["lis_result_sourcedid"] ?>';
+			var sourcedid = '<?php echo $_SESSION["config"]["lis_result_sourcedid"] ?>';
 			var sessid = '<?php echo $session_id ?>';
 			var userId = '<?php echo $_SESSION['user']['id'] ?>';
 
@@ -299,7 +299,7 @@
 			</div>
 		</div>
 
-		<?php if(isset($_SESSION['lti']['custom_showcloud']) && $_SESSION['lti']['custom_showcloud'] == 'true') { ?>
+		<?php if(isset($_SESSION['config']['custom_showcloud']) && $_SESSION['config']['custom_showcloud'] == 'true') { ?>
 			<div class="response-word-cloud"></div>
 		<?php } ?>
 	</body>

@@ -32,9 +32,9 @@
 	}
 
 	// custom form field names
-	$head_label = !empty($_SESSION['lti']['custom_head_label']) ? $_SESSION['lti']['custom_head_label'] : 'Name';
-	$location_label = !empty($_SESSION['lti']['custom_location_label']) ? $_SESSION['lti']['custom_location_label'] : 'Location';
-	$response_label = !empty($_SESSION['lti']['custom_response_label']) ? $_SESSION['lti']['custom_response_label'] : 'Response';
+	$head_label = !empty($_SESSION['config']['custom_head_label']) ? $_SESSION['config']['custom_head_label'] : 'Name';
+	$location_label = !empty($_SESSION['config']['custom_location_label']) ? $_SESSION['config']['custom_location_label'] : 'Location';
+	$response_label = !empty($_SESSION['config']['custom_response_label']) ? $_SESSION['config']['custom_response_label'] : 'Response';
 
 	$id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 	$success = false;
@@ -101,7 +101,7 @@
 		$assigned_filename = explode('.', end($assigned_filename));
 		$assigned_filename = $assigned_filename[0];
 	} else {
-		$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id'] . time());
+		$assigned_filename = md5($_SESSION['config']['user_id'] . $_SESSION['resource']['map_id'] . time());
 	}
 
 ?>
@@ -236,7 +236,7 @@
 		<input type="hidden" id="image-url" name="user_image_url" value="<?php echo $image_url ?>">
 		<input type="hidden" id="thumbnail-url" name="user_thumbnail_url" value="<?php echo $thumbnail_url ?>">
 
-		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["lti"]['user_id']; ?>" />
+		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["config"]['user_id']; ?>" />
 		<button type="submit" class="save-question btn btn-primary" name="submit" value="Edit">Edit</button>
 	</form>
 </html>

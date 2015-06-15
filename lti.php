@@ -9,6 +9,8 @@ class Lti {
 	protected $key = 'rmap';
 	protected $valid = false;
 	protected $errors = '';
+	protected $interested_lti_vars = array('lis_result_sourcedid', 'resource_link_id', 'user_id',
+		'context_id', 'lis_outcome_service_url', 'oauth_consumer_key');
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		if(!empty($_POST)) {
@@ -33,12 +35,18 @@ class Lti {
 				setcookie(session_name(), session_id(), time()+1800);
 				try {
 					$server->verify_request($request);
-					$_SESSION['lti'] = $this->ltivars;
+					$tmp = array();
+					foreach ($this->ltivars as $key => $value) {
+						if (in_array($key, $this->interested_lti_vars) || strpos($key, 'custom_') === 0) {
+							$tmp[$key] = $value;
+						}
+					}
+					$_SESSION['config'] = $tmp;
 					$_SESSION['authenticated'] = true;
 					$this->valid = true;
 				} catch (Exception $e) {
-					if (isset($_SESSION['lti'])) {
-						$this->ltivars = $_SESSION['lti'];
+					if (isset($_SESSION['authenticated'])) {
+						$this->ltivars = $_SESSION['config'];
 						$this->valid = true;
 					}  else if(isset($this->ltivars['lis_result_sourcedid'])) {
 						$this->errors = 'Cannot update location, please try from a different browser';
@@ -47,14 +55,20 @@ class Lti {
 					}
 				}
 			} else {
-				if (isset($_SESSION['lti'])) {
-					$this->ltivars = $_SESSION['lti'];
+				if (isset($_SESSION['authenticated'])) {
+					$this->ltivars = $_SESSION['config'];
 					$this->valid = true;
 				} else if(isset($this->ltivars['lis_result_sourcedid'])) {
 					$this->ltivars['user_id'] = $_POST['ltifix_user_id'];
 					session_start();
 					setcookie(session_name(), session_id(), time()+1800);
-					$_SESSION['lti'] = $this->ltivars;
+					$tmp = array();
+					foreach ($this->ltivars as $key => $value) {
+						if (in_array($key, $this->interested_lti_vars) || strpos($key, 'custom_') === 0) {
+							$tmp[$key] = $value;
+						}
+					}
+					$_SESSION['config'] = $tmp;
 					$_SESSION['authenticated'] = true;
 					$this->valid = true;
 				} else {
