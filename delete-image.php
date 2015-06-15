@@ -30,6 +30,7 @@
 		mysqli_stmt_close($response_query);
 
 		if ($_SESSION['user']['id'] != $user_id) {
+			mysqli_close($conn);
 			echo 'You do not have permission to delete the image.';
 			die();
 		}
@@ -45,6 +46,8 @@
 			$success = true;
 		}
 
+		mysqli_close($conn);
+
 		if ($success) {
 			$directory = dirname(__FILE__);
 			if (file_exists($directory.'/files/'.$filename) && file_exists($directory.'/files/thumbnail/'.$filename)) {
@@ -54,6 +57,7 @@
 
 		echo json_encode(array('result' => $success, 'file' => $filename));
 	} else {
+		mysqli_close($conn);
 		http_response_code(400);
-		echo 'No response id has been given.';
+		echo 'Error: Image cannot be deleted.';
 	}

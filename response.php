@@ -62,6 +62,9 @@
 				$image, $thumbnail, $null);
 			$success = mysqli_stmt_execute($insert_response_query);
 			mysqli_stmt_close($insert_response_query);
+
+			mysqli_close($conn);
+
 			if ($success) {
 				// send back a grade
 				$message = 'Thank you for posting.';
@@ -79,6 +82,8 @@
 			$message = 'Error: Please try submitting again.';
 		}
 	}
+
+	mysqli_close($conn);
 ?>
 <html>
 	<head>

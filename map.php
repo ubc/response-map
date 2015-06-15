@@ -57,6 +57,8 @@
 	$start = json_encode($start);
 	$all_student_responses = json_encode($student_responses);
 	$word_frequency = json_encode(wordCount($all_text));
+
+	mysqli_close($conn);
 ?>
 <html>
 	<head>

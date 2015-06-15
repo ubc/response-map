@@ -62,6 +62,9 @@
 			$success = mysqli_stmt_execute($update_response_query);
 			mysqli_stmt_close($update_response_query);
 		}
+
+		mysqli_close($conn);
+
 		if ($success) {
 			require('grade.php');
 			$message = 'Your response updated successfully.';
@@ -85,6 +88,8 @@
 		mysqli_stmt_fetch($response_query);
 		mysqli_stmt_close($response_query);
 
+		mysqli_close($conn);
+
 		if ($user_id != $_SESSION['user']['id']) {
 			echo 'Error: You do not have permission to edit the response';
 			die();
@@ -98,6 +103,7 @@
 	} else {
 		$assigned_filename = md5($_SESSION['lti']['user_id'] . $_SESSION['resource']['map_id'] . time());
 	}
+
 ?>
 <html>
 	<head>

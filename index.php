@@ -67,6 +67,8 @@
 		mysqli_stmt_fetch($count_query);
 		mysqli_stmt_close($count_query);
 
+		mysqli_close($conn);
+
 		if ($count > 0) {
 			// Show map
 			header('Location: map.php');
@@ -74,4 +76,6 @@
 			header('Location: response.php');
 		}
 	}
+
+	mysqli_close($conn);
 ?>

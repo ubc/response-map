@@ -57,6 +57,8 @@
 			$success = mysqli_stmt_execute($insert_vote_query);
 			mysqli_stmt_close($insert_vote_query);
 
+			mysqli_close($conn);
+
 			if (!$success) {
 				http_response_code(500);
 				echo 'Vote was not successfully inserted into database';
@@ -66,8 +68,11 @@
 			$result = array('vote' => $vote);
 			echo json_encode($result);
 		}
+
+		mysqli_close($conn);
 	}
 	else {
+		mysqli_close($conn);
 		http_response_code(400);
 		echo 'lis_result_sourcedid is required in the body';
 	}
