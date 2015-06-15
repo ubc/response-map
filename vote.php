@@ -8,13 +8,13 @@
 		if (!empty($body->sessid)) {
 			$session_id = $body->sessid;
 			session_id($body->sessid);
-			session_set_cookie_params(1800);
 			session_start();
+			setcookie(session_name(), session_id(), time()+1800);
 		}
 		else {
-			session_set_cookie_params(1800);
 			session_start();
 			$session_id = session_id();
+			setcookie(session_name(), session_id(), time()+1800);
 		}
 
 		if (empty($_SESSION['authenticated'])) {

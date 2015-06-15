@@ -29,8 +29,8 @@ class Lti {
 				$server->add_signature_method($method);
 				$request = OAuthRequest::from_request(NULL,NULL,NULL,$this->ltivars);
 				$this->basestring = $request->get_signature_base_string();
-				session_set_cookie_params(1800);
 				session_start();
+				setcookie(session_name(), session_id(), time()+1800);
 				try {
 					$server->verify_request($request);
 					$_SESSION['lti'] = $this->ltivars;
@@ -52,8 +52,8 @@ class Lti {
 					$this->valid = true;
 				} else if(isset($this->ltivars['lis_result_sourcedid'])) {
 					$this->ltivars['user_id'] = $_POST['ltifix_user_id'];
-					session_set_cookie_params(1800);
 					session_start();
+					setcookie(session_name(), session_id(), time()+1800);
 					$_SESSION['lti'] = $this->ltivars;
 					$_SESSION['authenticated'] = true;
 					$this->valid = true;

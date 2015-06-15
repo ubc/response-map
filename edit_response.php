@@ -1,6 +1,6 @@
 <?php
-	session_set_cookie_params(1800);
 	session_start();
+	setcookie(session_name(), session_id(), time()+1800);
 
 	if (empty($_SESSION['authenticated'])) {
 		echo 'Error: You do not have permission to visit this page.';
