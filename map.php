@@ -1,5 +1,12 @@
 <?php
+	session_set_cookie_params(1800);
 	session_start();
+
+	if (empty($_SESSION['lti'])) {
+		echo 'Error: You do not have permission to visit this page.';
+		die();
+	}
+
 	$session_id = session_id();
 
 	require_once('config.php');
@@ -204,6 +211,7 @@
 				var numVisibleMarkers = markers.length >= 28 ? 28 : markers.length;
 
 				for (var i = 0; i < numVisibleMarkers; i++) {
+					//markers[i].setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
 					markerBounds.extend(markers[i].getPosition());
 				}
 

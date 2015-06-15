@@ -1,5 +1,11 @@
 <?php
 require_once('lti.php');
+
+if (empty($_SESSION['lti'])) {
+	echo 'Error: You do not have permission to visit this page.';
+	die();
+}
+
 // Only return mark is scoring is enabled
 if (!empty($_SESSION['lti']['lis_outcome_service_url'])) {
 	// Give participation mark

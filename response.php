@@ -15,7 +15,14 @@
 		return $val;
 	}
 
+	session_set_cookie_params(1800);
 	session_start();
+
+	if (empty($_SESSION['lti'])) {
+		echo 'Error: You do not have permission to visit this page.';
+		die();
+	}
+
 	require_once('config.php');
 	require_once('process-text.php');
 

@@ -8,11 +8,18 @@
 		if (!empty($body->sessid)) {
 			$session_id = $body->sessid;
 			session_id($body->sessid);
+			session_set_cookie_params(1800);
 			session_start();
 		}
 		else {
+			session_set_cookie_params(1800);
 			session_start();
 			$session_id = session_id();
+		}
+
+		if (empty($_SESSION['lti'])) {
+			echo 'Error: You do not have permission to visit this page.';
+			die();
 		}
 
 		// check response exists
