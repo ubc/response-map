@@ -39,7 +39,8 @@
 	$id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 	$success = false;
 
-	if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])) {
+	if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])
+		&& $_SESSION['user']['id'] == $_POST['user_id']) {
 		$_POST = array_map('escapeInput', $_POST);
 		$head = empty($_POST['user_fullname']) ? NULL: $_POST['user_fullname'];
 		$description = empty($_POST['user_response']) ? NULL: $_POST['user_response'];
@@ -77,12 +78,17 @@
 	} else {
 		// get original response
 		$response_query = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($response_query, 'SELECT head, location, description, image_url, thumbnail_url FROM response WHERE id=? and resource_id=? LIMIT 1');
+		mysqli_stmt_prepare($response_query, 'SELECT user_id, head, location, description, image_url, thumbnail_url FROM response WHERE id=? and resource_id=? LIMIT 1');
 		mysqli_stmt_bind_param($response_query, 'ii', $id, $_SESSION['resource']['id']);
 		mysqli_stmt_execute($response_query);
-		mysqli_stmt_bind_result($response_query, $head, $location, $description, $image_url, $thumbnail_url);
+		mysqli_stmt_bind_result($response_query, $user_id, $head, $location, $description, $image_url, $thumbnail_url);
 		mysqli_stmt_fetch($response_query);
 		mysqli_stmt_close($response_query);
+
+		if ($user_id != $_SESSION['user']['id']) {
+			echo 'Error: You do not have permission to edit the response';
+			die();
+		}
 	}
 
 	if ($image_url) {
@@ -179,6 +185,7 @@
 	<div class="alert alert-success" id="image-message"></div>
 	<form action="edit_response.php" method="post">
 		<input type="hidden" name="id" value="<?php echo $id ?>">
+		<input type="hidden" name="user_id" value="<?php echo $user_id ?>">
 		<div class="input-group">
 			<span class="input-group-addon"><?php echo $head_label ?></span>
 			<input type="text" class="form-control user-fullname" name="user_fullname" value="<?php echo $head ?>">

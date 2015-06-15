@@ -21,6 +21,19 @@
 			die();
 		}
 
+		$response_query = mysqli_stmt_init($conn);
+		mysqli_stmt_prepare($response_query, 'SELECT user_id FROM response WHERE id=? and resource_id=? LIMIT 1');
+		mysqli_stmt_bind_param($response_query, 'ii', $_POST['id'], $_SESSION['resource']['id']);
+		mysqli_stmt_execute($response_query);
+		mysqli_stmt_bind_result($response_query, $user_id);
+		mysqli_stmt_fetch($response_query);
+		mysqli_stmt_close($response_query);
+
+		if ($_SESSION['user']['id'] != $user_id) {
+			echo 'You do not have permission to delete the image.';
+			die();
+		}
+
 		if (!empty($_POST['id'])) {
 			$query = "UPDATE response SET image_url=NULL, thumbnail_url=NULL WHERE id=?";
 			$update_response_query = mysqli_stmt_init($conn);
