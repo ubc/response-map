@@ -51,14 +51,25 @@
 			$thumbnail_url = $_POST['user_thumbnail_url'];
 		}
 		$location = $_POST['user_location'];
+		$location_success = true;
+		$latitude = $_POST['original_latitude'];
+		$longitude = $_POST['original_longitude'];
+
 		$update_response_query = mysqli_stmt_init($conn);
-		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($location) . "&sensor=false&key=" . $google_key));
-		if ($geocode->status === "OK") {
+		if ($_POST['user_location'] != $_POST['original_location']) {
+			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($location) . "&sensor=false&key=" . $google_key));
+			$location_success = false;
+			if ($geocode->status === "OK") {
+				$latitude = $geocode->results[0]->geometry->location->lat;
+				$longitude = $geocode->results[0]->geometry->location->lng;
+				$location_success = true;
+			}
+		}
+		if ($location_success) {
 			mysqli_stmt_prepare($update_response_query, 'UPDATE response SET head=?, description=?, location=?, ' .
 			  'latitude=?, longitude=?, image_url=?, thumbnail_url=? WHERE id=?');
 			mysqli_stmt_bind_param($update_response_query, 'sssddssi', $head, $description, $location,
-				$geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
-				$image_url, $thumbnail_url, $id);
+				$latitude, $longitude, $image_url, $thumbnail_url, $id);
 			$success = mysqli_stmt_execute($update_response_query);
 			mysqli_stmt_close($update_response_query);
 		}
@@ -75,16 +86,20 @@
 			$location = $_POST['user_location'];
 			$image_url = $_POST['user_image_url'];
 			$thumbnail_url = $_POST['user_thumbnail_url'];
+			$original_location = $_POST['original_location'];
+			$latitude = $_POST['original_latitude'];
+			$longitude = $_POST['original_longitude'];
+
 			// general error message for now
 			$message = 'Error: Please try submitting again.';
 		}
 	} else {
 		// get original response
 		$response_query = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($response_query, 'SELECT user_id, head, location, description, image_url, thumbnail_url FROM response WHERE id=? and resource_id=? LIMIT 1');
+		mysqli_stmt_prepare($response_query, 'SELECT user_id, head, latitude, longitude, location, description, image_url, thumbnail_url FROM response WHERE id=? and resource_id=? LIMIT 1');
 		mysqli_stmt_bind_param($response_query, 'ii', $id, $_SESSION['resource']['id']);
 		mysqli_stmt_execute($response_query);
-		mysqli_stmt_bind_result($response_query, $user_id, $head, $location, $description, $image_url, $thumbnail_url);
+		mysqli_stmt_bind_result($response_query, $user_id, $head, $latitude, $longitude, $location, $description, $image_url, $thumbnail_url);
 		mysqli_stmt_fetch($response_query);
 		mysqli_stmt_close($response_query);
 
@@ -94,6 +109,8 @@
 			echo 'Error: You do not have permission to edit the response';
 			die();
 		}
+
+		$original_location = $location;
 	}
 
 	if ($image_url) {
@@ -199,6 +216,9 @@
 		<div class="input-group">
 			<span class="input-group-addon"><?php echo $location_label ?></span>
 			<input type="text" class="form-control user-location" name="user_location" value="<?php echo $location ?>">
+			<input type="hidden" name="original_location" value="<?php echo $original_location ?>">
+			<input type="hidden" name="original_latitude" value="<?php echo $latitude ?>">
+			<input type="hidden" name="original_longitude" value="<?php echo $longitude ?>">
 		</div>
 		<div class="input-group">
 			<span class="input-group-addon"><?php echo $response_label; ?></span>
