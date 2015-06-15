@@ -4,7 +4,7 @@
 	session_set_cookie_params(1800);
 	session_start();
 
-	if (empty($_SESSION['lti'])) {
+	if (empty($_SESSION['authenticated'])) {
 		echo 'Error: You do not have permission to visit this page.';
 		die();
 	}

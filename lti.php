@@ -34,6 +34,7 @@ class Lti {
 				try {
 					$server->verify_request($request);
 					$_SESSION['lti'] = $this->ltivars;
+					$_SESSION['authenticated'] = true;
 					$this->valid = true;
 				} catch (Exception $e) {
 					if (isset($_SESSION['lti'])) {
@@ -54,6 +55,7 @@ class Lti {
 					session_set_cookie_params(1800);
 					session_start();
 					$_SESSION['lti'] = $this->ltivars;
+					$_SESSION['authenticated'] = true;
 					$this->valid = true;
 				} else {
 					$this->errors = 'Bad LTi Validation - Invalid consumer key';

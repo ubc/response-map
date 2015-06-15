@@ -17,7 +17,7 @@
 			$session_id = session_id();
 		}
 
-		if (empty($_SESSION['lti'])) {
+		if (empty($_SESSION['authenticated'])) {
 			echo 'Error: You do not have permission to visit this page.';
 			die();
 		}
