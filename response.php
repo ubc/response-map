@@ -23,7 +23,7 @@
 		die();
 	}
 
-	require_once('config.php');
+	require_once('configuration.php');
 	require_once('process-text.php');
 
 	if (mysqli_connect_error()) {
@@ -40,7 +40,7 @@
 	$success = false;
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
-		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $google_key));
+		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $config->google_key));
 		if ($geocode->status === "OK") {
 			$_POST = array_map('escapeInput', $_POST);
 			$head = empty($_POST['user_fullname']) ? NULL : $_POST['user_fullname'];

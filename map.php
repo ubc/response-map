@@ -9,7 +9,7 @@
 
 	$session_id = session_id();
 
-	require_once('config.php');
+	require_once('configuration.php');
 	require_once('process-text.php');
 
 	if (mysqli_connect_error()) {

@@ -1,5 +1,5 @@
 <?php
-	require_once('config.php');
+	require_once('configuration.php');
 
 	session_start();
 	setcookie(session_name(), session_id(), time()+1800);

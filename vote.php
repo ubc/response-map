@@ -2,7 +2,7 @@
 	$postBody = file_get_contents('php://input');
 	$null = null;
 
-	require_once('config.php');
+	require_once('configuration.php');
 
 	if ($body = json_decode($postBody)) {
 		if (!empty($body->sessid)) {

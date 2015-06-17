@@ -6,8 +6,8 @@
 		session_start();
 		setcookie(session_name(), session_id(), time()+1800);
 		if(isset($_POST['qid']) && isset($_POST['password'])) {
-			require_once('../config.php');
-			if($_POST['password'] != $adminpassword) {
+			require_once('../configuration.php');
+			if($_POST['password'] != $config->adminpassword) {
 				echo 'invalid password';
 				die();
 			}

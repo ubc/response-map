@@ -1,6 +1,6 @@
 <?php
 	require_once('lti.php');
-	require_once('config.php');
+	require_once('configuration.php');
 
 	/* Check if a valid lti request received */
 	$lti = new Lti();

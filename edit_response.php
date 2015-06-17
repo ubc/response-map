@@ -7,7 +7,7 @@
 		die();
 	}
 
-	require_once('config.php');
+	require_once('configuration.php');
 	require_once('process-text.php');
 
 	function return_bytes($val) {
@@ -57,7 +57,7 @@
 
 		$update_response_query = mysqli_stmt_init($conn);
 		if ($_POST['user_location'] != $_POST['original_location']) {
-			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($location) . "&sensor=false&key=" . $google_key));
+			$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($location) . "&sensor=false&key=" . $config->google_key));
 			$location_success = false;
 			if ($geocode->status === "OK") {
 				$latitude = $geocode->results[0]->geometry->location->lat;
