@@ -79,3 +79,8 @@ input.question-did {
 .footer .edit-button {
     margin-left: 1em;
 }
+
+table.admin_results, table.admin_results th,  table.admin_results td {
+    border:1px solid #333;
+    padding:10px;
+}
