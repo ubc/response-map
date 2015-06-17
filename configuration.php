@@ -9,9 +9,16 @@ class Config
 	public $google_key = 'Tk2BBlyShqZNQ9G8KoeS';
 	public $key = "LyhHemD3s6L6ezu24lxn";
 	public $secret = "1KJ7R3IXhLzDDbJ7Rflj";
+	public $database_host = "";
+	public $database_port = "";
 
 	// environment variables map with Config properties
 	private $envs = array(
+		'OPENSHIFT_MYSQL_DB_HOST' => 'database_host',
+		'OPENSHIFT_MYSQL_DB_PORT' => 'database_port',
+		'OPENSHIFT_APP_NAME' => 'database_name',
+		'OPENSHIFT_MYSQL_DB_USERNAME' => 'database_user',
+		'OPENSHIFT_MYSQL_DB_PASSWORD' => 'database_pass',
 		'HOST' => 'host',
 		'DB_NAME' => 'database_name',
 		'DB_USERNAME' => 'database_user',
