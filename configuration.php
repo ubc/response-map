@@ -1,16 +1,15 @@
 <?php
 class Config
 {
-	public $host = '127.0.0.1';
+	public $database_host = '127.0.0.1';
+	public $database_port = 3306;
 	public $database_name = 'response_map';
-	public $database_user = 'yLe7Uq3FPmeQb0NbvuXj';
-	public $database_pass = 'PMRxdcgDlFz7Rh30jDy9';
+	public $database_user = 'rmap_user';
+	public $database_pass = '';
 	public $adminpassword = '19VZ7mDyYsHWs9iU3AWm';
-	public $google_key = 'Tk2BBlyShqZNQ9G8KoeS';
-	public $key = "LyhHemD3s6L6ezu24lxn";
-	public $secret = "1KJ7R3IXhLzDDbJ7Rflj";
-	public $database_host = "";
-	public $database_port = "";
+	public $google_key = '';
+	public $key = "ltikey";
+	public $secret = "";
 
 	// environment variables map with Config properties
 	private $envs = array(
@@ -19,7 +18,8 @@ class Config
 		'OPENSHIFT_APP_NAME' => 'database_name',
 		'OPENSHIFT_MYSQL_DB_USERNAME' => 'database_user',
 		'OPENSHIFT_MYSQL_DB_PASSWORD' => 'database_pass',
-		'HOST' => 'host',
+		'DB_HOST' => 'database_host',
+		'DB_PORT' => 'database_port',
 		'DB_NAME' => 'database_name',
 		'DB_USERNAME' => 'database_user',
 		'DB_PASSWORD' => 'database_pass',
