@@ -7,36 +7,39 @@ class Config
 	public $database_pass = 'PMRxdcgDlFz7Rh30jDy9';
 	public $adminpassword = '19VZ7mDyYsHWs9iU3AWm';
 	public $google_key = 'Tk2BBlyShqZNQ9G8KoeS';
+	public $key = "LyhHemD3s6L6ezu24lxn";
+	public $secret = "1KJ7R3IXhLzDDbJ7Rflj";
+
+	// environment variables map with Config properties
+	private $envs = array(
+		'HOST' => 'host',
+		'DB_NAME' => 'database_name',
+		'DB_USERNAME' => 'database_user',
+		'DB_PASSWORD' => 'database_pass',
+		'ADMIN_PASSWORD' => 'adminpassword',
+		'GOOGLE_KEY' => 'google_key',
+		'OAUTH_CONSUMER_KEY' => 'key',
+		'OAUTH_CONSUMER_SECRET' => 'secret',
+	);
+
+	function __construct() {
+		// include config.php if exists
+		include('config.php');
+		foreach ($this->envs as $k => $v) {
+			$value = getenv($k);
+			// if environment variable is set
+			if ($value !== false) {
+				$this->$v = $value;
+				// if variable is set in config.php
+			} else if (isset($$v)) {
+				$this->$v = $$v;
+			}
+		}
+	}
 }
-
-// environment variables map with Config properties
-$envs = array(
-	'HOST' => 'host',
-	'DB_NAME' => 'database_name',
-	'DB_USERNAME' => 'database_user',
-	'DB_PASSWORD' => 'database_pass',
-	'ADMIN_PASSWORD' => 'adminpassword',
-	'GOOGLE_KEY' => 'google_key',
-);
-
-// include config.php if exists
-include_once('config.php');
 
 // initialize the configuration
 $config = new Config();
-
-// load environment variables and/or config variables
-// environment variable takes precedence over config variables
-foreach ($envs as $k => $v) {
-	$value = getenv($k);
-	// if environment variable is set
-	if ($value !== false) {
-		$config->$v = $value;
-		// if variable is set in config.php
-	} else if (isset($$v)) {
-		$config->$v = $$v;
-	}
-}
 
 // Establish a connection to the database
 $conn = mysqli_connect($config->host, $config->database_user, $config->database_pass, $config->database_name);

@@ -1,18 +1,22 @@
 <?php
 
 require_once('OAuth.php');
+require_once('configuration.php');
 
 class Lti {
 	protected $testing = false;
 	protected $ltivars = array();
-	protected $secret = '123456';
-	protected $key = 'rmap';
+	protected $secret = '6WNozury0fUKi2hKSIpa';
+	protected $key = 'CjIfMw8yqubqXozsFSh6';
 	protected $valid = false;
 	protected $errors = '';
 	protected $interested_lti_vars = array('lis_result_sourcedid', 'resource_link_id', 'user_id',
 		'context_id', 'lis_outcome_service_url', 'oauth_consumer_key');
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
+		$config = new Config();
+		$this->key = $config->key;
+		$this->secret = $config->secret;
 		if(!empty($_POST)) {
 			$this->ltivars = $_POST;
 		}
@@ -24,6 +28,7 @@ class Lti {
 			if(!isset($this->ltivars["oauth_consumer_key"])) {
 				$this->ltivars["oauth_consumer_key"] = '';
 			}
+
 			if($this->ltivars["oauth_consumer_key"] == $this->key) {
 				$store->add_consumer($this->ltivars["oauth_consumer_key"], $this->secret);
 				$server = new OAuthServer($store);

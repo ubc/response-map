@@ -1,6 +1,5 @@
 <?php
 	require_once('lti.php');
-	require_once('configuration.php');
 
 	/* Check if a valid lti request received */
 	$lti = new Lti();
@@ -68,7 +67,6 @@
 		mysqli_stmt_close($count_query);
 
 		mysqli_close($conn);
-		print_r($_POST);
 
 		if ($count > 0) {
 			// Show map
