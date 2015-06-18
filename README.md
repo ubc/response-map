@@ -5,15 +5,26 @@ The response map is an LTI tool that allows students to respond to a question or
 ## Requirements
 You will need have an Apache HTTP server which is configured to serve PHP files and have a MySQL database configured to store student details and responses.
 
+### Dependencies
+- PHP 5.3+ (tested with 5.4 and 5.5)
+- PHP extensions: mysqli, gd, imagick
+
 ## Installation
 1. Enable a Google Geocoding API. Refer to [Google's instructions](https://developers.google.com/maps/documentation/geocoding/#api_key) for details.
 2. Set the configuration variables required (MySQL credentials, Google Geocoding API key, LTI key and secret) in one of the two methods below:
     - Set them as environment variables. Refer to `configuration.php` for variable names.
     - Save a copy of `config.example.php` as `config.php` and edit the configuration variables.
 3. Create a database with the name set in Step 2 and import `response_map.sql` to create the necessary tables.
-4. Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the Advanced Module List array.
-5. Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool (set in Step 2). You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
-6. Next, create the LTI component within a course unit (under Add New Component > Advanced > LTI) and click on "Edit". Make sure to enter in the the LTI ID that you have previously set in LTI Passport. Specify the url to the tool (make sure you have a closing slash) and turn off opening in a new page for a seamless look. If you would like to give a student a partipation mark for responding to the response-map, then set the "Scored" attribute to true.
+
+## Integrating with edX
+1. Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the Advanced Module List array.
+2. Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool (set in Step 2). You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
+3. Next, create the LTI component within a course unit (under Add New Component > Advanced > LTI) and click on "Edit". Make sure to enter in the the LTI ID that you have previously set in LTI Passport. Specify the url to the tool (make sure you have a closing slash) and turn off opening in a new page for a seamless look. If you would like to give a student a partipation mark for responding to the response-map, then set the "Scored" attribute to true.
+
+Note: If your edX instance is using http instead of https. Add `HTTPS: "off"` to `lms.envs.json` and restart the server to get the grading functionality to work. The reason is even though edX may be on http the outcome url passed to Response Map uses https.
+
+## Integrating with other Platforms
+Please refer to the your Platform's LTI integration instructions.
 
 ## Custom Parameters
 You can use the custom parameters below to customize parts of the tool. To do so click on "Edit" and add custom parameters in the following format: `parameter=value`.
