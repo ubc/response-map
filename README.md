@@ -6,15 +6,33 @@ The response map is an LTI tool that allows students to respond to a question or
 You will need have an Apache HTTP server which is configured to serve PHP files and have a MySQL database configured to store student details and responses.
 
 ## Installation
-First, you must edit config.example.php to contain the appropriate MySQL credentials and Google Maps API key and save the file as config.php.
+1. Enable a Google Geocoding API. Refer to [Google's instructions](https://developers.google.com/maps/documentation/geocoding/#api_key) for details.
+2. Set the configuration variables required (MySQL credentials, Google Geocoding API key, LTI key and secret) in one of the two methods below:
+    - Set them as environment variables. Refer to `configuration.php` for variable names.
+    - Save a copy of `config.example.php` as `config.php` and edit the configuration variables.
+3. Create a database with the name set in Step 2 and import `response_map.sql` to create the necessary tables.
+4. Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the Advanced Module List array.
+5. Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool (set in Step 2). You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
+6. Next, create the LTI component within a course unit (under Add New Component > Advanced > LTI) and click on "Edit". Make sure to enter in the the LTI ID that you have previously set in LTI Passport. Specify the url to the tool (make sure you have a closing slash) and turn off opening in a new page for a seamless look. If you would like to give a student a partipation mark for responding to the response-map, then set the "Scored" attribute to true.
 
-Then, you must specify and LTI key and secret in lti.php.
+## Custom Parameters
+You can use the custom parameters below to customize parts of the tool. To do so click on "Edit" and add custom parameters in the following format: `parameter=value`.
 
-Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the array.
+### Word Cloud
+A word cloud of the keywords in all the responses
 
-Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool. You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| showcloud | true  | to have the word cloud appear below the map |
+| usecolor  | true  | to have the word cloud in color instead of black and white |
+### Form Labels
+Names for the form fields. For example, we want the location field to be label "Place", set the custom parameter as `location_label=Place`
 
-Next, create the LTI component within a course unit (under Add New Component > Advanced > LTI) and click on "Edit". Make sure to enter in the the LTI ID that you have previously set in LTI Passport. Specify the url to the tool (make sure you have a closing slash) and turn off opening in a new page for a seamless look. If you would like to give a student a partipation mark for responding to the response-map, then set the "Scored" attribute to true.
+| Parameter  | Description | Default (if parameter not set) |
+|------------|-------------|--------------------------------|
+| head_label | for the first text field of the response form | Name |
+| location_label | for the location field | Location
+| response_label | for the response text area | Response |
 
 ## Workflow
 <img src="https://github.com/UQ-UQx/response-map/blob/master/README_WORKFLOW_IMAGE.png?raw=true">
