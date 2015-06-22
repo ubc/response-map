@@ -8,7 +8,7 @@ class Config
 	public $database_pass = '';
 	public $adminpassword = '19VZ7mDyYsHWs9iU3AWm';
 	public $google_key = '';
-	public $key = "ltikey";
+	public $key = '["ltikey"]';
 	public $secret = "";
 
 	// environment variables map with Config properties

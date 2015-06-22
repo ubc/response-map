@@ -13,6 +13,6 @@
 	$google_key = '';
 
     // lti key and secret
-    $key = 'ltikey';
+    $key = '["ltikey"]';
     $secret ='';
 ?>

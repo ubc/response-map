@@ -7,7 +7,7 @@ class Lti {
 	protected $testing = false;
 	protected $ltivars = array();
 	protected $secret = '6WNozury0fUKi2hKSIpa';
-	protected $key = 'CjIfMw8yqubqXozsFSh6';
+	protected $key = array();
 	protected $valid = false;
 	protected $errors = '';
 	protected $interested_lti_vars = array('lis_result_sourcedid', 'resource_link_id', 'user_id',
@@ -18,7 +18,7 @@ class Lti {
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		$config = new Config();
-		$this->key = $config->key;
+		$this->key = json_decode($config->key);
 		$this->secret = $config->secret;
 		$required_valid = false;
 		if(!empty($_POST)) {
@@ -42,7 +42,7 @@ class Lti {
 				$this->ltivars["oauth_consumer_key"] = '';
 			}
 
-			if($this->ltivars["oauth_consumer_key"] == $this->key) {
+			if(in_array($this->ltivars["oauth_consumer_key"], $this->key)) {
 				$store->add_consumer($this->ltivars["oauth_consumer_key"], $this->secret);
 				$server = new OAuthServer($store);
 				$method = new OAuthSignatureMethod_HMAC_SHA1();
