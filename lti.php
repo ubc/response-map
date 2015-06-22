@@ -37,6 +37,7 @@ class Lti {
 				$request = OAuthRequest::from_request(NULL,NULL,NULL,$this->ltivars);
 				$this->basestring = $request->get_signature_base_string();
 				session_start();
+				session_unset();
 				setcookie(session_name(), session_id(), time()+1800);
 				try {
 					$server->verify_request($request);
@@ -66,6 +67,7 @@ class Lti {
 				} else if(isset($this->ltivars['lis_result_sourcedid'])) {
 					$this->ltivars['user_id'] = $_POST['ltifix_user_id'];
 					session_start();
+					session_unset();
 					setcookie(session_name(), session_id(), time()+1800);
 					$tmp = array();
 					foreach ($this->ltivars as $key => $value) {
