@@ -17,7 +17,7 @@
 	// Check to see if user exists
 	$select_user_query = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($select_user_query, 'SELECT id FROM user WHERE userId=? LIMIT 1');
-	mysqli_stmt_bind_param($select_user_query, 'i', $_SESSION['config']['user_id']);
+	mysqli_stmt_bind_param($select_user_query, 's', $_SESSION['config']['user_id']);
 	mysqli_stmt_execute($select_user_query);
 	mysqli_stmt_bind_result($select_user_query, $userId);
 	mysqli_stmt_fetch($select_user_query);
@@ -26,7 +26,7 @@
 	// Check to see if resource exists
 	$select_resource_query = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($select_resource_query, 'SELECT id FROM resource WHERE map_id=? LIMIT 1');
-	mysqli_stmt_bind_param($select_resource_query, 'i', $question_id);
+	mysqli_stmt_bind_param($select_resource_query, 's', $question_id);
 	mysqli_stmt_execute($select_resource_query);
 	mysqli_stmt_bind_result($select_resource_query, $resourceId);
 	mysqli_stmt_fetch($select_resource_query);
