@@ -74,6 +74,7 @@
 		} else {
 			header('Location: response.php');
 		}
+		exit();
 	}
 
 	mysqli_close($conn);

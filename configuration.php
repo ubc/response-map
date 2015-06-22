@@ -49,6 +49,6 @@ class Config
 $config = new Config();
 
 // Establish a connection to the database
-$conn = mysqli_connect($config->host, $config->database_user, $config->database_pass, $config->database_name);
+$conn = mysqli_connect($config->database_host, $config->database_user, $config->database_pass, $config->database_name);
 
 

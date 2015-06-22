@@ -12,18 +12,31 @@ class Lti {
 	protected $errors = '';
 	protected $interested_lti_vars = array('lis_result_sourcedid', 'resource_link_id', 'user_id',
 		'context_id', 'lis_outcome_service_url', 'oauth_consumer_key');
+	protected $required_vars = array('oauth_consumer_key', 'oauth_signature_method',
+		'oauth_timestamp', 'oauth_nonce', 'oauth_version', 'oauth_signature',
+		'user_id', 'resource_link_id');
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		$config = new Config();
 		$this->key = $config->key;
 		$this->secret = $config->secret;
+		$required_valid = false;
 		if(!empty($_POST)) {
 			$this->ltivars = $_POST;
+			// check all required values exists
+			$required_valid = true;
+			foreach ($this->required_vars as $var) {
+				if (empty($this->ltivars[$var])) {
+					$this->errors = 'Bad LTi Validation - One or more required LTI variables are unavailable.';
+					$required_valid = false;
+					break;
+				}
+			}
 		}
 		if($this->testing) {
 			$this->valid = true;
 			$this->usedummydata();
-		} else {
+		} else if ($required_valid) {
 			$store = new TrivialOAuthDataStore();
 			if(!isset($this->ltivars["oauth_consumer_key"])) {
 				$this->ltivars["oauth_consumer_key"] = '';
