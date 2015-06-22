@@ -5,7 +5,9 @@
 	$lti = new Lti();
 	$lti->require_valid(); // Returns error message if not a valid LTI request
 
-	$question_id = end(explode('-', $_SESSION['config']['resource_link_id']));
+	$key = !empty($_SESSION['config']['tool_consumer_instance_guid']) ?
+		$_SESSION['config']['tool_consumer_instance_guid'] : $_SESSION['config']['oauth_consumer_key'];
+	$question_id = $_SESSION['config']['resource_link_id'] . $key;
 
 	if (mysqli_connect_error()) {
 		echo 'Failed to connect to question database: ' . mysqli_connect_error();

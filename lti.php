@@ -11,10 +11,10 @@ class Lti {
 	protected $valid = false;
 	protected $errors = '';
 	protected $interested_lti_vars = array('lis_result_sourcedid', 'resource_link_id', 'user_id',
-		'context_id', 'lis_outcome_service_url', 'oauth_consumer_key');
+		'context_id', 'lis_outcome_service_url', 'oauth_consumer_key', 'tool_consumer_instance_guid');
 	protected $required_vars = array('oauth_consumer_key', 'oauth_signature_method',
 		'oauth_timestamp', 'oauth_nonce', 'oauth_version', 'oauth_signature',
-		'user_id', 'resource_link_id');
+		'user_id', 'resource_link_id', 'context_id');
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		$config = new Config();
