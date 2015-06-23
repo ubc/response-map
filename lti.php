@@ -6,7 +6,7 @@ require_once('configuration.php');
 class Lti {
 	protected $testing = false;
 	protected $ltivars = array();
-	protected $secret = '6WNozury0fUKi2hKSIpa';
+	protected $secret = array();
 	protected $key = array();
 	protected $valid = false;
 	protected $errors = '';
@@ -18,8 +18,8 @@ class Lti {
 
 	function __construct($options = null, $initialize = true, $error_messages = null) {
 		$config = new Config();
-		$this->key = json_decode($config->key);
-		$this->secret = $config->secret;
+		$this->secret = json_decode($config->key_secret, true);
+		$this->key = array_keys($this->secret);
 		$required_valid = false;
 		if(!empty($_POST)) {
 			$this->ltivars = $_POST;
@@ -43,7 +43,7 @@ class Lti {
 			}
 
 			if(in_array($this->ltivars["oauth_consumer_key"], $this->key)) {
-				$store->add_consumer($this->ltivars["oauth_consumer_key"], $this->secret);
+				$store->add_consumer($this->ltivars["oauth_consumer_key"], $this->secret[$this->ltivars["oauth_consumer_key"]]);
 				$server = new OAuthServer($store);
 				$method = new OAuthSignatureMethod_HMAC_SHA1();
 				$server->add_signature_method($method);

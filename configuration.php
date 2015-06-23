@@ -10,6 +10,8 @@ class Config
 	public $google_key = '';
 	public $key = '["ltikey"]';
 	public $secret = "";
+	public $key_secret = '{}';
+
 
 	// environment variables map with Config properties
 	private $envs = array(
@@ -27,6 +29,7 @@ class Config
 		'GOOGLE_KEY' => 'google_key',
 		'OAUTH_CONSUMER_KEY' => 'key',
 		'OAUTH_CONSUMER_SECRET' => 'secret',
+		'OAUTH_CONSUMER' => 'key_secret',
 	);
 
 	function __construct() {
