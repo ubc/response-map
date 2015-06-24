@@ -8,8 +8,6 @@ class Config
 	public $database_pass = '';
 	public $adminpassword = '19VZ7mDyYsHWs9iU3AWm';
 	public $google_key = '';
-	public $key = '["ltikey"]';
-	public $secret = "";
 	public $key_secret = '{}';
 
 
@@ -27,8 +25,6 @@ class Config
 		'DB_PASSWORD' => 'database_pass',
 		'ADMIN_PASSWORD' => 'adminpassword',
 		'GOOGLE_KEY' => 'google_key',
-		'OAUTH_CONSUMER_KEY' => 'key',
-		'OAUTH_CONSUMER_SECRET' => 'secret',
 		'OAUTH_CONSUMER' => 'key_secret',
 	);
 
