@@ -10,6 +10,9 @@ if (empty($_SESSION['authenticated'])) {
 }
 
 $body = json_decode(file_get_contents('php://input'));
+$instructors = json_decode($config->instructor_roles);	// allowed roles
+$roles = explode(',', $_SESSION['config']['roles']);	// user's roles
+$allowed = array_intersect($roles, $instructors);
 
 if (!empty($body->respId)) {
 	// query for response
@@ -21,7 +24,7 @@ if (!empty($body->respId)) {
 	mysqli_stmt_fetch($get_response_query);
 	mysqli_stmt_close($get_response_query);
 
-	if ($resourceId == $_SESSION['resource']['id']) {
+	if ($resourceId == $_SESSION['resource']['id'] && !empty($allowed)) {
 		$delete_response_query = mysqli_stmt_init($conn);
 		mysqli_stmt_prepare($delete_response_query, 'UPDATE response SET deleted=1 WHERE id=?');
 		mysqli_stmt_bind_param($delete_response_query, 'i', $respId);
@@ -30,7 +33,7 @@ if (!empty($body->respId)) {
 
 		echo json_encode(array('responseId' => $respId));
 	} else {
-		http_response_code(500);
+		http_response_code(400);
 		echo 'Response was not successfully deleted.';
 		die();
 	}

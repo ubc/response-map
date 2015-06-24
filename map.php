@@ -54,6 +54,10 @@
 	}
 	mysqli_stmt_close($select_response_query);
 
+	$instructors = json_decode($config->instructor_roles);	// allowed roles
+	$roles = explode(',', $_SESSION['config']['roles']);	// user's roles
+	$allowed = array_intersect($roles, $instructors);
+
 	$start = json_encode($start);
 	$all_student_responses = json_encode($student_responses);
 	$word_frequency = json_encode(wordCount($all_text));
@@ -65,6 +69,7 @@
 		<?php include('html/header.html'); ?>
 
 		<script type="text/javascript">
+			var allowed = <?php echo !empty($allowed); ?>;
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
 			var mapResponses = JSON.parse(allStudentResponses);
 			var sourcedid = '<?php echo $_SESSION["config"]["lis_result_sourcedid"] ?>';
@@ -214,7 +219,10 @@
 							contentString += '<a class="btn btn-default btn-xs button" href="edit_response.php?id=' + this.responseId + '">Edit</a>';
 						}
 
-						contentString += '<a class="btn btn-danger btn-xs button" onclick="deleteResponse('+ this.key +')">Delete</a>';
+						if (allowed) {
+							contentString += '<a class="btn btn-danger btn-xs button" onclick="deleteResponse(' + this.key + ')">Delete</a>';
+						}
+
 						contentString += '</div></div></div>';
 
 						this.infoWindow.setContent(contentString);

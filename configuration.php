@@ -9,7 +9,7 @@ class Config
 	public $adminpassword = '19VZ7mDyYsHWs9iU3AWm';
 	public $google_key = '';
 	public $key_secret = '{}';
-
+	public $instructor_roles = '["Instructor", "Administrator", "ContentDeveloper"]';
 
 	// environment variables map with Config properties
 	private $envs = array(
@@ -26,6 +26,7 @@ class Config
 		'ADMIN_PASSWORD' => 'adminpassword',
 		'GOOGLE_KEY' => 'google_key',
 		'OAUTH_CONSUMER' => 'key_secret',
+		'INSTRUCTOR_ROLES' => 'instructor_roles',
 	);
 
 	function __construct() {
