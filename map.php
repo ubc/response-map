@@ -25,7 +25,7 @@
 		'image_url, thumbnail_url, COALESCE(SUM(f.vote_count), 0) as vote_count ' .
 		'FROM response as r ' .
 		'LEFT JOIN feedback as f ON r.id=f.response_id ' .
-		'WHERE r.resource_id=? ' .
+		'WHERE r.resource_id=? and deleted=0 ' .
 		'GROUP BY r.id';
 	$select_response_query = mysqli_stmt_init($conn);
 	mysqli_stmt_prepare($select_response_query, $query);
@@ -115,6 +115,22 @@
 				});
 			}
 
+			function deleteResponse(key) {
+				if (confirm("Are you sure you want to delete this response?")) {
+					$.ajax({
+						type: 'POST',
+						url: 'delete_response.php',
+						data: JSON.stringify({
+							respId: markers[key].responseId
+						}),
+						dataType: 'json',
+						success: function(data) {
+							markers[key].setMap(null);
+						}
+					});
+				}
+			}
+
 			function mapInitialise() {
 				var mapOptions = {
 					center: startLocation,
@@ -195,9 +211,10 @@
 														'</button>';
 
 						if (this.myMarker) {
-							contentString += '<a class="btn btn-default btn-xs edit-button" href="edit_response.php?id=' + this.responseId + '">Edit</a>';
+							contentString += '<a class="btn btn-default btn-xs button" href="edit_response.php?id=' + this.responseId + '">Edit</a>';
 						}
 
+						contentString += '<a class="btn btn-danger btn-xs button" onclick="deleteResponse('+ this.key +')">Delete</a>';
 						contentString += '</div></div></div>';
 
 						this.infoWindow.setContent(contentString);
@@ -228,6 +245,11 @@
 					gridSize: 50,
 					maxZoom: 18
 				};
+
+				// get index of marker in the list
+				for (var key in markers) {
+					markers[key].key = key;
+				}
 
 				var markerCluster = new MarkerClusterer(map, markers, mcOptions);
 			}
