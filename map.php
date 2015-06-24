@@ -76,11 +76,13 @@
 			var map, markers = [];
 			var openedMarker = null;
 
-			// initialize to first response in case the user has no responses - eg. Instructor
-			var startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
+			// set center of the map
 			var myResponse = JSON.parse('<?php echo $start ?>');
+			var startLocation = new google.maps.LatLng(0, 0);
 			if (myResponse) {
 				startLocation = new google.maps.LatLng(myResponse.lat, myResponse.lng)
+			} else if (mapResponses.length > 0) {
+				startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
 			}
 
 			function toggleThumbsUp(respid, element) {
@@ -118,6 +120,7 @@
 					center: startLocation,
 					zoomControl: true,
 					streetViewControl: false,
+					zoom: 1,
 				};
 
 				map = new google.maps.Map(
@@ -217,7 +220,9 @@
 					markerBounds.extend(markers[i].getPosition());
 				}
 
-				map.fitBounds(markerBounds);
+				if (numVisibleMarkers > 0) {
+					map.fitBounds(markerBounds);
+				}
 
 				var mcOptions = {
 					gridSize: 50,
@@ -297,6 +302,10 @@
 					</div>
 				</div>
 			</div>
+		</div>
+
+		<div class="button-row">
+			<a href="response.php" class="btn btn-primary">Add Response</a>
 		</div>
 
 		<?php if(isset($_SESSION['config']['custom_showcloud']) && $_SESSION['config']['custom_showcloud'] == 'true') { ?>

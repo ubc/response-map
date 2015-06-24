@@ -60,23 +60,7 @@
 
 	// if user and resource exists
 	if ($_SESSION['user']['id'] && $_SESSION['resource']['id']) {
-		$count_query = mysqli_stmt_init($conn);
-		mysqli_stmt_prepare($count_query, 'SELECT count(*) as count FROM response WHERE resource_id=? AND user_id=?');
-		mysqli_stmt_bind_param($count_query, 'ii', $_SESSION['resource']['id'], $_SESSION['user']['id']);
-		mysqli_stmt_execute($count_query);
-		mysqli_stmt_bind_result($count_query, $count);
-		mysqli_stmt_fetch($count_query);
-		mysqli_stmt_close($count_query);
-
-		mysqli_close($conn);
-
-		if ($count > 0) {
-			// Show map
-			header('Location: map.php');
-		} else {
-			header('Location: response.php');
-		}
-		exit();
+		header('Location: map.php');
 	}
 
 	mysqli_close($conn);
