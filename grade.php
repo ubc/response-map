@@ -13,7 +13,8 @@ if (!empty($_SESSION['config']['lis_outcome_service_url'])) {
 
 	$outcome_url = $_SESSION['config']['lis_outcome_service_url'];
 	$consumer_key = $_SESSION['config']['oauth_consumer_key'];
-	$consumer_secret = $config->secret;
+	$key_secret = json_decode($config->key_secret, true);
+	$consumer_secret = $key_secret[$consumer_key];
 
 	$hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
 

@@ -80,6 +80,7 @@
 			require('grade.php');
 			$message = 'Your response updated successfully.';
 			header('Location: map.php?message='.$message);
+			exit();
 		} else {
 			$head = $_POST['user_response'];
 			$description = $_POST['user_response'];
