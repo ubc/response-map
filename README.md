@@ -23,7 +23,7 @@ You will need have an Apache HTTP server which is configured to serve PHP files 
 
 Notes
 - If your edX instance is using http instead of https. Add `HTTPS: "off"` to `lms.envs.json` and restart the server to get the grading functionality to work. The reason is even though edX may be on http the outcome url passed to Response Map uses https.
-- Currently, there is a limitation of only having one map per unit.
+- Currently, there is a limitation of only having one map per subsection.
 
 ## Integrating with other Platforms
 Please refer to the your Platform's LTI integration instructions.
