@@ -69,7 +69,7 @@
 		<?php include('html/header.html'); ?>
 
 		<script type="text/javascript">
-			var allowed = <?php echo !empty($allowed); ?>;
+			var allowed = <?php echo !empty($allowed)?'true':'false'; ?>;
 			var allStudentResponses = '<?php echo $all_student_responses ?>';
 			var mapResponses = JSON.parse(allStudentResponses);
 			var sourcedid = '<?php echo $_SESSION["config"]["lis_result_sourcedid"] ?>';
