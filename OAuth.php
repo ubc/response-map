@@ -199,7 +199,7 @@ class OAuthRequest {
   	if(!$postvars) {
 	  	$postvars = $_POST;
   	}
-    $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
+    $scheme = (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != "on" && $_SERVER['HTTPS'] != '1'))
               ? 'http'
               : 'https';
     $port = "";
@@ -271,7 +271,7 @@ class OAuthRequest {
       $qparms = OAuthUtil::parse_parameters($parts['query']);
       $parameters = array_merge($qparms, $parameters);
     }
-     
+
 
     return new OAuthRequest($http_method, $http_url, $parameters);
   }
