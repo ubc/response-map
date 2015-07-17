@@ -44,7 +44,8 @@
 		foreach ($row as $key => $val) {
 			$tmp->$key = $val;
 		}
-		$tmp->thumbs_up = $tmp->vote_count > 0;
+        $tmp->response = "<p>" . preg_replace("\n\r?\n", "</p><p>", htmlspecialchars($tmp->response)) . "</p>";
+        $tmp->thumbs_up = $tmp->vote_count > 0;
 
 		if ($tmp->user_id == $_SESSION['user']['id'])
 			$start = $tmp;
