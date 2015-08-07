@@ -44,7 +44,7 @@
 		foreach ($row as $key => $val) {
 			$tmp->$key = $val;
 		}
-        $tmp->response = "<p>" . preg_replace("\n\r?\n", "</p><p>", htmlspecialchars($tmp->response)) . "</p>";
+        $tmp->response = "<p>" . nl2br(htmlspecialchars($tmp->response)) . "</p>";
         $tmp->thumbs_up = $tmp->vote_count > 0;
 
 		if ($tmp->user_id == $_SESSION['user']['id'])
