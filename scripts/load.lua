@@ -1,4 +1,5 @@
 -- disable OAuth signature checking by changing $built == $signature to true on line 60 in OAuth.php
+-- and check_nonce and check_timestamp on line 593,594
 math.randomseed(os.time())
 request = function()
     local user = math.random(1000000)

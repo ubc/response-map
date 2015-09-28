@@ -37,14 +37,14 @@
 	while ($field = mysqli_fetch_field($response_meta)) {
 		$parameters[] = &$row[$field->name];
 	}
-	call_user_func_array("mysqli_stmt_bind_result", $parameters);
+	call_user_func_array('mysqli_stmt_bind_result', $parameters);
 
 	while (mysqli_stmt_fetch($select_response_query)) {
 		$tmp = new stdClass();
 		foreach ($row as $key => $val) {
 			$tmp->$key = $val;
 		}
-        $tmp->response = "<p>" . nl2br(htmlspecialchars($tmp->response)) . "</p>";
+        $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response)) . '</p>';
         $tmp->thumbs_up = $tmp->vote_count > 0;
 
 		if ($tmp->user_id == $_SESSION['user']['id'])
@@ -69,11 +69,13 @@
 	<head>
 		<?php include('html/header.html'); ?>
 
+		<script type="application/json" id="all_responses"><?php echo $all_student_responses ?></script>
+		<script type="application/json" id="start"><?php echo $start ?></script>
+
 		<script type="text/javascript">
 			var allowed = <?php echo !empty($allowed)?'true':'false'; ?>;
-			var allStudentResponses = '<?php echo $all_student_responses ?>';
-			var mapResponses = JSON.parse(allStudentResponses);
-			var sourcedid = '<?php echo $_SESSION["config"]["lis_result_sourcedid"] ?>';
+			var mapResponses = JSON.parse(document.getElementById('all_responses').innerHTML);
+			var sourcedid = '<?php echo $_SESSION['config']['lis_result_sourcedid'] ?>';
 			var sessid = '<?php echo $session_id ?>';
 			var userId = '<?php echo $_SESSION['user']['id'] ?>';
 
@@ -83,7 +85,7 @@
 			var openedMarker = null;
 
 			// set center of the map
-			var myResponse = JSON.parse('<?php echo $start ?>');
+			var myResponse = JSON.parse(document.getElementById('start').innerHTML);
 			var startLocation = new google.maps.LatLng(0, 0);
 			if (myResponse) {
 				startLocation = new google.maps.LatLng(myResponse.lat, myResponse.lng)
