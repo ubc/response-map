@@ -258,6 +258,6 @@
 		<input type="hidden" id="thumbnail-url" name="user_thumbnail_url" value="<?php echo $thumbnail_url ?>">
 
 		<input type="hidden" name="ltifix_user_id" value="<?php echo $_SESSION["config"]['user_id']; ?>" />
-		<button type="submit" class="save-question btn btn-primary" name="submit" value="Edit">Edit</button>
+		<button type="submit" class="save-question btn btn-primary" name="submit" value="Edit">Save</button>
 	</form>
 </html>
