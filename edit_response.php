@@ -125,7 +125,7 @@
 ?>
 <html>
 	<head>
-		<?php include('html/header.html'); ?>
+		<?php include('header.php'); ?>
 
 		<script>
 			/*jslint unparam: true */
@@ -207,7 +207,7 @@
 		<div class="alert alert-danger" role="alert"><?php echo $message ?></div>
 	<?php } ?>
 	<div class="alert alert-success" id="image-message"></div>
-	<form action="edit_response.php" method="post">
+	<form action="edit_response.php" method="post" accept-charset="utf-8">
 		<input type="hidden" name="id" value="<?php echo $id ?>">
 		<input type="hidden" name="user_id" value="<?php echo $user_id ?>">
 		<div class="input-group">

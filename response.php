@@ -87,7 +87,7 @@
 ?>
 <html>
 	<head>
-		<?php include('html/header.html'); ?>
+		<?php include('header.php'); ?>
 
 		<script>
 			/*jslint unparam: true */
@@ -167,7 +167,7 @@
 		<div class="alert alert-danger" role="alert"><?php echo $message ?></div>
 	<?php } ?>
 		<div class="alert alert-success" id="image-message"></div>
-		<form action="response.php" method="post">
+		<form action="response.php" method="post" accept-charset="utf-8">
 			<input class="question-did" name="lis_result_sourcedid" value="<?php echo $_SESSION['config']['lis_result_sourcedid'] ?>">
 
 			<div class="input-group">

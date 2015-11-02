@@ -44,7 +44,7 @@
 		foreach ($row as $key => $val) {
 			$tmp->$key = $val;
 		}
-        $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response)) . '</p>';
+        $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response, ENT_NOQUOTES, "UTF-8")) . '</p>';
         $tmp->thumbs_up = $tmp->vote_count > 0;
 
 		if ($tmp->user_id == $_SESSION['user']['id'])
@@ -67,7 +67,7 @@
 ?>
 <html>
 	<head>
-		<?php include('html/header.html'); ?>
+		<?php include('header.php'); ?>
 
 		<script type="application/json" id="all_responses"><?php echo $all_student_responses ?></script>
 		<script type="application/json" id="start"><?php echo $start ?></script>
