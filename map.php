@@ -44,7 +44,7 @@ while (mysqli_stmt_fetch($select_response_query)) {
     foreach ($row as $key => $val) {
         $tmp->$key = $val;
     }
-    $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response, ENT_NOQUOTES, "UTF-8")) . '</p>';
+    $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response, ENT_NOQUOTES, 'UTF-8')) . '</p>';
     $tmp->thumbs_up = $tmp->vote_count > 0;
 
     if ($tmp->user_id == $_SESSION['user']['id']) {
@@ -75,6 +75,17 @@ mysqli_close($conn);
 
     <script id="info-template" type="text/x-handlebars-template">
         <div id="content">
+            {{#if (showPager response.marker.responses)}}
+            <div id="pager">
+                {{#unless (firstResponse response.id response.marker.responses)}}
+                <a onclick="changeResponse({{ this.key }}, {{ responsePosition response.id response.marker.responses }}, -1)"><i class="fa fa-caret-left fa-lg"></i></a>
+                {{/unless}}
+                {{ responsePosition response.id response.marker.responses }} of {{ response.marker.responses.length }} responses
+                {{#unless (lastResponse response.id response.marker.responses)}}
+                <a onclick="changeResponse({{ this.key }}, {{ responsePosition response.id response.marker.responses }}, 1)"><i class="fa fa-caret-right fa-lg"></i></a>
+                {{/unless}}
+            </div>
+            {{/if}}
             <h3 id="firstHeading" class="firstHeading">{{ response.fullname }}</h3>
 
             <div id="bodyContent">
@@ -109,7 +120,6 @@ mysqli_close($conn);
         var markerBounds = new google.maps.LatLngBounds();
         var iterator = 0;
         var map, markers = [];
-        var openedMarker = null;
         var infoWindow = new google.maps.InfoWindow();
         var source = $("#info-template").html();
         var template = Handlebars.compile(source);
@@ -122,6 +132,24 @@ mysqli_close($conn);
         } else if (mapResponses.length > 0) {
             startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
         }
+
+        function responsePosition(responseId, responses) {
+            return $.map(responses, function(response) { return response.id}).indexOf(responseId) + 1;
+        }
+
+        Handlebars.registerHelper('firstResponse', function(responseId, responses) {
+            return responses.length > 1 && responses[0].id == responseId;
+        });
+
+        Handlebars.registerHelper('lastResponse', function(responseId, responses) {
+            return responses.length > 1 && responses[responses.length - 1].id == responseId;
+        });
+
+        Handlebars.registerHelper('responsePosition', responsePosition);
+
+        Handlebars.registerHelper('showPager', function(responses) {
+            return responses.length > 1;
+        });
 
         function toggleThumbsUp(markerKey, responseId, element) {
             $.ajax({
@@ -172,10 +200,32 @@ mysqli_close($conn);
                         if (!markers[markerKey].responses.length) {
                             // remove pin if not responses attached
                             markers[markerKey].setMap(null);
+                        } else {
+                            updateInfoWindow(markers[markerKey].responses[0])
                         }
                     }
                 });
             }
+        }
+
+        function updateInfoWindow(response) {
+            $('.response-full-image').attr('src', response.image_url);
+            $('.response-fullname').text(response.fullname + '\'s Image Response');
+
+            var context = {
+                response: response,
+                buttonClass: response.thumbsUp ? 'btn-primary' : 'btn-default',
+                thumbnail: (response.thumbnail_url !== null) && (response.image_url !== null),
+                allowed: allowed,
+                key: response.marker.key
+            };
+            infoWindow.setContent(template(context));
+            infoWindow.open(map, response.marker);
+        }
+
+        function changeResponse(markerKey, responsePosition, direction) {
+            var response = markers[markerKey].responses[responsePosition - 1 + direction];
+            updateInfoWindow(response);
         }
 
         function mapInitialise() {
@@ -186,10 +236,7 @@ mysqli_close($conn);
                 zoom: 1
             };
 
-            map = new google.maps.Map(
-                document.getElementById('map-canvas'),
-                mapOptions
-            );
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 
             for (var key in mapResponses) {
                 var mapResp = mapResponses[key];
@@ -209,11 +256,7 @@ mysqli_close($conn);
                 if (marker.length == 1) {
                     marker = marker[0];
                 } else if (marker.length == 0) {
-                    marker = new google.maps.Marker({
-                        position: latLng,
-                        map: map,
-                        draggable: false
-                    });
+                    marker = new google.maps.Marker({position: latLng, map: map, draggable: false});
                     marker.responses = [];
                     marker.distanceToCentre = google.maps.geometry.spherical.computeDistanceBetween(startLocation, latLng);
                     markers.push(marker);
@@ -223,6 +266,8 @@ mysqli_close($conn);
                     marker = marker[0];
                 }
 
+                mapResp.marker = marker;
+
                 if (userId == mapResp.user_id) {
                     marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
                     mapResp.myMarker = true;
@@ -231,20 +276,7 @@ mysqli_close($conn);
                 marker.responses.push(mapResp);
 
                 google.maps.event.addListener(marker, 'click', function () {
-                    $('.response-full-image').attr('src', this.responses[0].fullImageUrl);
-                    $('.response-fullname').text(this.responses[0].fullname + '\'s Image Response');
-
-                    var context = {
-                        response: this.responses[0],
-                        buttonClass: this.responses[0].thumbsUp ? 'btn-primary' : 'btn-default',
-                        thumbnail: (this.responses[0].thumbnail_url !== null) && (this.responses[0].image_url !== null),
-                        allowed: allowed,
-                        key: this.key
-                    };
-                    infoWindow.setContent(template(context));
-
-                    infoWindow.open(map, this);
-                    openedMarker = this;
+                    updateInfoWindow(this.responses[0]);
                 });
             }
 

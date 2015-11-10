@@ -170,7 +170,7 @@ mysqli_close($conn);
 </head>
 
 <body>
-<?php if (!$success && isset($message)) { ?>
+<?php if (!$success && !empty($message)) { ?>
     <div class="alert alert-danger" role="alert"><?php echo $message ?></div>
 <?php } ?>
 <div class="alert alert-success" id="image-message"></div>
