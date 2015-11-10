@@ -13,5 +13,4 @@
 	$google_key = '';
 
     // lti key and secret
-    $key_secret = '{"ltikey": "ltisecret"}'
-?>
+    $key_secret = '{"ltikey": "ltisecret"}';

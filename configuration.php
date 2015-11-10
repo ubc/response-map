@@ -49,7 +49,5 @@ class Config
 $config = new Config();
 
 // Establish a connection to the database
-$conn = mysqli_connect($config->database_host, $config->database_user, $config->database_pass, $config->database_name);
-mysql_set_charset('utf8', $conn);
-
-
+$conn = mysqli_connect($config->database_host, $config->database_user, $config->database_pass, $config->database_name, $config->database_port);
+mysqli_set_charset($conn, 'utf8');
