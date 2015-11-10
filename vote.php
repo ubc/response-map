@@ -57,8 +57,6 @@
 			$success = mysqli_stmt_execute($insert_vote_query);
 			mysqli_stmt_close($insert_vote_query);
 
-			mysqli_close($conn);
-
 			if (!$success) {
 				http_response_code(500);
 				echo 'Vote was not successfully inserted into database';

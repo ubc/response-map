@@ -38,6 +38,7 @@
 
 	$assigned_filename = md5($_SESSION['config']['user_id'] . $_SESSION['resource']['map_id'] . time());
 	$success = false;
+    $message = '';
 
 	if (isset($_POST['submit']) && $_POST['submit'] == "Save" && !empty($_POST['user_location'])) {
 		$geocode = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($_POST['user_location']) . "&sensor=false&key=" . $config->google_key));
@@ -61,9 +62,6 @@
 				$head, $description, $_POST['user_location'], $geocode->results[0]->geometry->location->lat, $geocode->results[0]->geometry->location->lng,
 				$image, $thumbnail, $null);
 			$success = mysqli_stmt_execute($insert_response_query);
-			mysqli_stmt_close($insert_response_query);
-
-			mysqli_close($conn);
 
 			if ($success) {
 				// send back a grade
@@ -74,12 +72,15 @@
 				if (isset($_SESSION['config']['custom_showcloud']) && $_SESSION['config']['custom_showcloud'] == 'true')
 					$message .= ' Please see the cloud tag.';
 				header('Location: map.php?message='.$message);
-			}
+			} else {
+                $message = mysqli_stmt_error($insert_response_query);
+            }
+            mysqli_stmt_close($insert_response_query);
 		}
 
 		if (!$success) {
 			// generic error message for now.
-			$message = 'Error: Please try submitting again.';
+			$message = "Error: $message Please try submitting again.";
 		}
 	}
 

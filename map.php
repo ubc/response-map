@@ -47,8 +47,9 @@
         $tmp->response = '<p>' . nl2br(htmlspecialchars($tmp->response, ENT_NOQUOTES, "UTF-8")) . '</p>';
         $tmp->thumbs_up = $tmp->vote_count > 0;
 
-		if ($tmp->user_id == $_SESSION['user']['id'])
+		if ($tmp->user_id == $_SESSION['user']['id']) {
 			$start = $tmp;
+		}
 
 		$all_text .= ' ' . $tmp->response;
 		$student_responses[] = $tmp;
@@ -72,6 +73,30 @@
 		<script type="application/json" id="all_responses"><?php echo $all_student_responses ?></script>
 		<script type="application/json" id="start"><?php echo $start ?></script>
 
+        <script id="info-template" type="text/x-handlebars-template">
+            <div id="content">
+                <h3 id="firstHeading" class="firstHeading">{{ response.fullname }}</h3>
+                <div id="bodyContent">
+                    {{{ response.response }}}
+                    <a href="#myModal" data-toggle="modal"><img src="{{ response.thumbnail_url }}" alt=""/></a>
+
+                    <div class="footer">
+                        <button type="button" class="vote-btn btn {{ buttonClass }} btn-xs" onclick="toggleThumbsUp({{ this.key }}, {{ response.id }}, this)">
+                            <i class="fa fa-thumbs-o-up"></i>
+                            <span class="vote-count">{{ response.vote_count }}</span>
+                        </button>
+
+                        {{#if response.myMarker}}
+                        <a class="btn btn-default btn-xs button" href="edit_response.php?id={{ response.id }}">Edit</a>
+                        {{/if}}
+
+                        {{#if allowed}}
+                        <a class="btn btn-danger btn-xs button" onclick="deleteResponse({{ this.key }}, {{ response.id }})">Delete</a>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </script>
 		<script type="text/javascript">
 			var allowed = <?php echo !empty($allowed)?'true':'false'; ?>;
 			var mapResponses = JSON.parse(document.getElementById('all_responses').innerHTML);
@@ -83,6 +108,9 @@
 			var iterator = 0;
 			var map, markers = [];
 			var openedMarker = null;
+            var infoWindow = new google.maps.InfoWindow();
+            var source = $("#info-template").html();
+            var template = Handlebars.compile(source);
 
 			// set center of the map
 			var myResponse = JSON.parse(document.getElementById('start').innerHTML);
@@ -93,47 +121,56 @@
 				startLocation = new google.maps.LatLng(mapResponses[0].lat, mapResponses[0].lng);
 			}
 
-			function toggleThumbsUp(respid, element) {
+			function toggleThumbsUp(markerKey, responseId, element) {
 				$.ajax({
 					type: 'POST',
 					url: 'vote.php',
 					data: JSON.stringify({
 						sourcedid: sourcedid,
 						sessid: sessid,
-						respid: respid,
+						respid: responseId
 					}),
 					dataType: 'json',
 					success: function(data) {
 						var voteCountElem = $($(element).find('.vote-count')[0]);
 
+                        var response = $.grep(markers[markerKey].responses, function(response) {
+                            return response.id == responseId;
+                        })[0];
 						if (data.vote) {
-							openedMarker.voteCount++;
+                            response.vote_count++;
 							$(element).removeClass('btn-default');
 							$(element).addClass('btn-primary');
-							openedMarker.thumbsUp = true;
+                            response.thumbsUp = true;
 						} else {
-							openedMarker.voteCount--;
+                            response.vote_count--;
 							$(element).removeClass('btn-primary');
 							$(element).addClass('btn-default');
-							openedMarker.thumbsUp = false;
+                            response.thumbsUp = false;
 						}
 
-						voteCountElem.text(openedMarker.voteCount);
+						voteCountElem.text(response.vote_count);
 					}
 				});
 			}
 
-			function deleteResponse(key) {
+			function deleteResponse(markerKey, responseId) {
 				if (confirm("Are you sure you want to delete this response?")) {
 					$.ajax({
 						type: 'POST',
 						url: 'delete_response.php',
 						data: JSON.stringify({
-							respId: markers[key].responseId
+							respId: responseId
 						}),
 						dataType: 'json',
 						success: function(data) {
-							markers[key].setMap(null);
+                            markers[markerKey].responses = $.grep(markers[markerKey].responses, function(response) {
+                                return response.id !== responseId
+                            });
+                            if (!markers[markerKey].responses.length) {
+                                // remove pin if not responses attached
+                                markers[markerKey].setMap(null);
+                            }
 						}
 					});
 				}
@@ -144,7 +181,7 @@
 					center: startLocation,
 					zoomControl: true,
 					streetViewControl: false,
-					zoom: 1,
+					zoom: 1
 				};
 
 				map = new google.maps.Map(
@@ -153,84 +190,58 @@
 				);
 
 				for (var key in mapResponses) {
-					mapResp = mapResponses[key];
+					var mapResp = mapResponses[key];
 					mapResp.myMarker = false;
 
 					mapResp.lat = parseFloat(mapResp.lat);
 					mapResp.lng = parseFloat(mapResp.lng);
 
-					// nudges
-					nudgeLat = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
-					nudgeLng = Math.random() * 0.00005 * Math.floor(Math.random()*2) == 1 ? 1 : -1;
+                    var latLng = new google.maps.LatLng(mapResp.lat, mapResp.lng);
 
+                    var marker = $.grep(markers, function(latLng) {
+                        return function(m) {
+                            return m.position.toString() == latLng.toString()
+                        }
+                    }(latLng));
 
-					var marker = new google.maps.Marker({
-						position: new google.maps.LatLng(mapResp.lat, mapResp.lng),
-						map: map,
-						draggable: false
-					});
+                    if (marker.length == 1) {
+                        marker = marker[0];
+                    } else if (marker.length == 0) {
+                        marker = new google.maps.Marker({
+                            position: latLng,
+                            map: map,
+                            draggable: false
+                        });
+                        marker.responses = [];
+                        marker.distanceToCentre = google.maps.geometry.spherical.computeDistanceBetween(startLocation, latLng);
+                        markers.push(marker);
+                    } else {
+                        console.warn('Invalid number of markers with position: ' + latLng.toString());
+                        // fail back to use the first one
+                        marker = marker[0];
+                    }
 
 					if (userId == mapResp.user_id) {
 						marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 						mapResp.myMarker = true;
 					}
 
-					marker.distanceToCentre = google.maps.geometry.spherical.computeDistanceBetween(startLocation, marker.position);
-					marker.fullname = mapResp.fullname;
-					marker.responseBody = mapResp.response;
-					marker.myMarker = mapResp.myMarker;
-					marker.fullImageUrl = mapResp.image_url;
-					marker.thumbnailImageUrl = mapResp.thumbnail_url;
-					marker.fullname = mapResp.fullname;
-					marker.responseId = mapResp.id;
-					marker.thumbsUp = mapResp.thumbs_up;
-					marker.voteCount = parseInt(mapResp.vote_count);
-					marker.infoWindow = new google.maps.InfoWindow();
-
-					markers.push(marker);
+                    marker.responses.push(mapResp);
 
 					google.maps.event.addListener(marker, 'click', function() {
-						if (openedMarker !== null) {
-							openedMarker.infoWindow.close();
-							openedMarker = null;
-						}
+						$('.response-full-image').attr('src', this.responses[0].fullImageUrl);
+						$('.response-fullname').text(this.responses[0].fullname + '\'s Image Response');
 
-						$('.response-full-image').attr('src', this.fullImageUrl);
-						$('.response-fullname').text(this.fullname + '\'s Image Response');
+                        var context = {
+                            response: this.responses[0],
+                            buttonClass: this.responses[0].thumbsUp ? 'btn-primary' : 'btn-default',
+                            thumbnail: (this.responses[0].thumbnail_url !== null) && (this.responses[0].image_url !== null),
+                            allowed: allowed,
+                            key: this.key
+                        };
+						infoWindow.setContent(template(context));
 
-						var buttonClass = 'btn-default';
-						if (this.thumbsUp) {
-							buttonClass = 'btn-primary';
-						}
-
-						var contentString = '<div id="content">' +
-											'<h3 id="firstHeading" class="firstHeading">' + this.fullname + '</h3>' +
-											'<div id="bodyContent">' +
-												'<p>' + this.responseBody + '</p>';
-
-						if ((this.thumbnailImageUrl !== null) && (this.fullImageUrl !== null)) {
-							contentString += 		'<a href="#myModal" data-toggle="modal"><img src="' + this.thumbnailImageUrl + '" alt=""/></a>';
-						}
-
-						contentString +=			'<div class="footer">' +
-														'<button type="button" class="vote-btn btn ' + buttonClass + ' btn-xs" onclick="toggleThumbsUp(' + this.responseId + ', this)">' +
-															'<i class="fa fa-thumbs-o-up"></i>' +
-															'<span class="vote-count">' + this.voteCount + '</span>' +
-														'</button>';
-
-						if (this.myMarker) {
-							contentString += '<a class="btn btn-default btn-xs button" href="edit_response.php?id=' + this.responseId + '">Edit</a>';
-						}
-
-						if (allowed) {
-							contentString += '<a class="btn btn-danger btn-xs button" onclick="deleteResponse(' + this.key + ')">Delete</a>';
-						}
-
-						contentString += '</div></div></div>';
-
-						this.infoWindow.setContent(contentString);
-
-						this.infoWindow.open(map,this);
+						infoWindow.open(map,this);
 						openedMarker = this;
 					});
 				}

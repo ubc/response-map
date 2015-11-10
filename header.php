@@ -8,7 +8,7 @@
 
 <!-- JAVASCRIPT -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="//maps.googleapis.com/maps/api/js?v=3.exp?sensor=false&libraries=geometry"></script>
+<script src="//maps.googleapis.com/maps/api/js?v=3?sensor=false&libraries=geometry"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
 <script src="js/d3.layout.cloud.js"></script>
@@ -18,3 +18,4 @@
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
 <script src="js/jquery.fileupload.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.4/handlebars.min.js"></script>

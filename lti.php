@@ -192,5 +192,3 @@ class TrivialOAuthDataStore extends OAuthDataStore {
 		return NULL;
 	}
 }
-
-?>
