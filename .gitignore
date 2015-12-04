@@ -45,3 +45,5 @@ build/config/buildinfo.properties
 
 # Database config
 config.php
+
+node_modules
