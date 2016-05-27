@@ -49,9 +49,8 @@ if (!empty($_POST['image'])) {
     mysqli_close($conn);
 
     if ($success) {
-        $directory = dirname(__FILE__);
-        if (file_exists($directory . '/files/' . $filename) && file_exists($directory . '/files/thumbnail/' . $filename)) {
-            $success = unlink($directory . '/files/' . $filename) && unlink($directory . '/files/thumbnail/' . $filename);
+        if (file_exists(__DIR__. '/files/' . $filename) && file_exists(__DIR__. '/files/thumbnail/' . $filename)) {
+            $success = unlink(__DIR__. '/files/' . $filename) && unlink(__DIR__. '/files/thumbnail/' . $filename);
         }
     }
 

@@ -7,6 +7,7 @@ $lti->require_valid(); // Returns error message if not a valid LTI request
 
 $key = !empty($_SESSION['config']['tool_consumer_instance_guid']) ?
     $_SESSION['config']['tool_consumer_instance_guid'] : $_SESSION['config']['oauth_consumer_key'];
+$context_id = $_SESSION['config']['context_id'];
 $question_id = $_SESSION['config']['resource_link_id'] . $key;
 
 if (mysqli_connect_error()) {
@@ -27,8 +28,8 @@ mysqli_stmt_close($select_user_query);
 
 // Check to see if resource exists
 $select_resource_query = mysqli_stmt_init($conn);
-mysqli_stmt_prepare($select_resource_query, 'SELECT id FROM resource WHERE map_id=? LIMIT 1');
-mysqli_stmt_bind_param($select_resource_query, 's', $question_id);
+mysqli_stmt_prepare($select_resource_query, 'SELECT id FROM resource WHERE course_id=? AND map_id=? LIMIT 1');
+mysqli_stmt_bind_param($select_resource_query, 'ss', $context_id, $question_id);
 mysqli_stmt_execute($select_resource_query);
 mysqli_stmt_bind_result($select_resource_query, $resourceId);
 mysqli_stmt_fetch($select_resource_query);
@@ -50,7 +51,7 @@ if (!$userId) {
 if (!$resourceId) {
     $add_resource_query = mysqli_stmt_init($conn);
     mysqli_stmt_prepare($add_resource_query, 'INSERT INTO resource (course_id, map_id, create_time) VALUES (?, ?, ?)');
-    mysqli_stmt_bind_param($add_resource_query, 'sss', $_SESSION['config']['context_id'], $question_id, $null);
+    mysqli_stmt_bind_param($add_resource_query, 'sss', $context_id, $question_id, $null);
     mysqli_stmt_execute($add_resource_query);
     $_SESSION['resource'] = array('id' => mysqli_stmt_insert_id($add_resource_query), 'map_id' => $question_id);
     mysqli_stmt_close($add_resource_query);

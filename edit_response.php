@@ -40,7 +40,7 @@ $response_label = !empty($_SESSION['config']['custom_response_label']) ? $_SESSI
 $id = isset($_GET['id']) ? $_GET['id'] : $_POST['id'];
 $success = false;
 
-if (isset($_POST['submit']) && $_POST['submit'] == "Edit" && !empty($_POST['user_location'])
+if (isset($_POST['submit']) && $_POST['submit'] === 'Edit' && !empty($_POST['user_location'])
     && $_SESSION['user']['id'] == $_POST['user_id']
 ) {
     $_POST = array_map('escapeInput', $_POST);
