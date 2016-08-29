@@ -72,8 +72,8 @@ if (array_key_exists('submit', $_POST) && $_POST['submit'] === 'Save' && !empty(
             $message = 'Thank you for posting.';
             if (!empty($_SESSION['config']['lis_outcome_service_url'])) {
                 require('grade.php');
+                $message .= ' You have been given a participation mark.';
             }
-            $message .= ' You have been given a participation mark.';
             if (isset($_SESSION['config']['custom_showcloud']) && $_SESSION['config']['custom_showcloud'] === 'true') {
                 $message .= ' Please see the cloud tag.';
             }
