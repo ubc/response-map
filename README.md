@@ -17,7 +17,7 @@ You will need have an Apache HTTP server which is configured to serve PHP files 
 3. Create a database with the name set in Step 2 and import `response_map.sql` to create the necessary tables.
 
 ## Integrating with edX
-1. Within your course in edX Studio, the LTI module must be enabled in order to create LTI components. This can be done by going to Settings > Advanced Settings and adding ```"lti"``` to the Advanced Module List array.
+1. [Enable LTI component for your course](http://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/exercises_tools/lti_component.html#enabling-lti-components-for-a-course).
 2. Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool (set in Step 2). You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.
 3. Next, create the LTI component within a course unit (under Add New Component > Advanced > LTI) and click on "Edit". Make sure to enter in the the LTI ID that you have previously set in LTI Passport. Specify the url to the tool (make sure you have a closing slash) and turn off opening in a new page for a seamless look. If you would like to give a student a partipation mark for responding to the response-map, then set the "Scored" attribute to true.
 
