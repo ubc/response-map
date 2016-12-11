@@ -1,0 +1,20 @@
+version: '2'
+services:
+  app:
+    image: ubcctlt/response-map
+    container_name: responsemap-app
+    ports:
+      - 8080:80
+    environment:
+      DB_HOST: db
+      OAUTH_CONSUMER: '{"key": "sec"}'
+    restart: always
+    volumes:
+      - .:/var/www/html
+  db:
+    image: mariadb:10.1
+    environment:
+      - MYSQL_ROOT_PASSWORD=randompass
+      - MYSQL_DATABASE=response_map
+      - MYSQL_USER=rmap_user
+      - MYSQL_PASSWORD=rmap_pass
