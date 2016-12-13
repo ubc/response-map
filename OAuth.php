@@ -225,9 +225,12 @@ class OAuthRequest
         if (!$postvars) {
             $postvars = $_POST;
         }
-        $scheme = (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != "on" && $_SERVER['HTTPS'] != '1'))
-            ? 'http'
-            : 'https';
+        if(!empty($_SERVER['HTTP_X_FORWARDED_PROTO']))
+            $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+        else
+            $scheme = (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != "on" && $_SERVER['HTTPS'] != '1'))
+                ? 'http'
+                : 'https';
         $port = "";
         if ($_SERVER['SERVER_PORT'] != "80" && $_SERVER['SERVER_PORT'] != "443" &&
             strpos(':', $_SERVER['HTTP_HOST']) < 0
