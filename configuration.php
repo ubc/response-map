@@ -33,7 +33,9 @@ class Config
     public function __construct()
     {
         // include config.php if exists
-        include('config.php');
+        if (file_exists('config.php')) {
+            include('config.php');
+        }
         foreach ($this->envs as $k => $v) {
             $value = getenv($k);
             // if environment variable is set
