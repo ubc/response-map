@@ -1,4 +1,3 @@
-<?php header('Content-Type: text/html; charset=utf-8'); ?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- STYLESHEETS -->
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>

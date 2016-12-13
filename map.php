@@ -66,6 +66,7 @@ $word_frequency = json_encode(wordCount($all_text));
 
 mysqli_close($conn);
 ?>
+<?php header('Content-Type: text/html; charset=utf-8'); ?>
 <html>
 <head>
     <?php include('header.php'); ?>

@@ -92,6 +92,7 @@ if (array_key_exists('submit', $_POST) && $_POST['submit'] === 'Save' && !empty(
 
 mysqli_close($conn);
 ?>
+<?php header('Content-Type: text/html; charset=utf-8'); ?>
 <html>
 <head>
     <?php include('header.php'); ?>
