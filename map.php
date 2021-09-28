@@ -3,7 +3,7 @@ session_start();
 setcookie(session_name(), session_id(), time() + 1800);
 
 if (empty($_SESSION['authenticated'])) {
-    echo 'Error: You do not have permission to visit this page. The UBC Response Map Tool is not loading, which may be caused by your web browser blocking third party cookies. Please try to use a different browser, enable third party cookies via your browser preferences or add responsemap.elearning.ubc.ca to the whitelist. (<a href"https://support.bigcommerce.com/articles/Public/How-do-I-allow-third-party-cookies-to-be-set-in-my-browser" target="_blank">How do I do this?</a>)';
+    echo 'Error: You do not have permission to visit this page. The UBC Response Map Tool is not loading, which may be caused by your web browser blocking third party cookies. Please try to use a different browser, enable third party cookies via your browser preferences or add responsemap.elearning.ubc.ca to the whitelist. (<a href="https://akohubteam.medium.com/how-to-enable-third-party-cookies-on-your-browsers-f9a8143b8cc5" target="_blank">How do I do this?</a>)';
     die();
 }
 
