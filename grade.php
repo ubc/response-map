@@ -30,7 +30,7 @@ if (!empty($_SESSION['config']['lis_outcome_service_url'])) {
 				<replaceResultRequest>
 					<resultRecord>
 						<sourcedGUID>
-							<sourcedId>' . $_SESSION['config']['lis_result_sourcedid'] . '</sourcedId>
+							<sourcedId>' . ($_SESSION['config']['lis_result_sourcedid'] ?? '') . '</sourcedId>
 						</sourcedGUID>
 						<result>
 							<resultScore>

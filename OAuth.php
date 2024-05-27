@@ -15,6 +15,7 @@ class OAuthConsumer
 {
     public $key;
     public $secret;
+    protected $callback_url = '';
 
     function __construct($key, $secret, $callback_url = NULL)
     {
@@ -255,15 +256,6 @@ class OAuthRequest
             $parameters = OAuthUtil::parse_parameters($_SERVER['QUERY_STRING']);
 
             $ourpost = $postvars;
-            // Deal with magic_quotes
-            // http://www.php.net/manual/en/security.magicquotes.disabling.php
-            if (get_magic_quotes_gpc()) {
-                $outpost = array();
-                foreach ($postvars as $k => $v) {
-                    $v = stripslashes($v);
-                    $ourpost[$k] = $v;
-                }
-            }
             // Add POST Parameters if they exist
             $parameters = array_merge($parameters, $ourpost);
 

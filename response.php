@@ -3,6 +3,7 @@ function return_bytes($val)
 {
     $val = trim($val);
     $last = strtolower($val[strlen($val) - 1]);
+    $val = (int)$val;
     switch ($last) {
         // The 'G' modifier is available since PHP 5.1.0
         case 'g':
@@ -177,7 +178,7 @@ mysqli_close($conn);
 <div class="alert alert-success" id="image-message"></div>
 <form action="response.php" method="post" accept-charset="utf-8">
     <input class="question-did" name="lis_result_sourcedid"
-           value="<?php echo $_SESSION['config']['lis_result_sourcedid'] ?>">
+           value="<?php echo ($_SESSION['config']['lis_result_sourcedid'] ?? '') ?>">
 
     <div class="input-group">
         <span class="input-group-addon"><?php echo $head_label ?></span>

@@ -114,7 +114,7 @@ mysqli_close($conn);
     <script type="text/javascript">
         var allowed = <?php echo !empty($allowed)?'true':'false'; ?>;
         var mapResponses = JSON.parse(document.getElementById('all_responses').innerHTML);
-        var sourcedid = '<?php echo $_SESSION['config']['lis_result_sourcedid'] ?>';
+        var sourcedid = '<?php echo ($_SESSION['config']['lis_result_sourcedid'] ?? '') ?>';
         var sessid = '<?php echo $session_id ?>';
         var userId = '<?php echo $_SESSION['user']['id'] ?>';
 

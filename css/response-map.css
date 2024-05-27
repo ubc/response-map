@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body {
+    padding: 1em;
+}
+
 .filelimit {
 	height: 32px;
 	line-height: 32px;

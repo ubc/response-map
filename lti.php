@@ -16,6 +16,7 @@ class Lti
     protected $required_vars = array('oauth_consumer_key', 'oauth_signature_method',
         'oauth_timestamp', 'oauth_nonce', 'oauth_version', 'oauth_signature',
         'user_id', 'resource_link_id', 'context_id', 'roles');
+    protected $basestring = '';
 
     public function __construct($options = null, $initialize = true, $error_messages = null)
     {

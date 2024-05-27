@@ -1,4 +1,4 @@
-FROM php:5.6-apache
+FROM php:8.2-apache
 
 ENV DB_HOST localhost
 ENV DB_PORT 3306
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
         libmcrypt-dev \
         libmagickwand-dev libmagickcore-dev \
     && docker-php-ext-install -j$(nproc) mysqli opcache \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install imagick \
     && docker-php-ext-enable imagick
