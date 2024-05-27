@@ -7,12 +7,12 @@ SET foreign_key_checks = 0;
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `userId` VARCHAR(36) NOT NULL,
-  `username` VARCHAR(36) DEFAULT NULL,
-  `firstname` VARCHAR(80) DEFAULT NULL,
-  `lastname` VARCHAR(80) DEFAULT NULL,
+  `userId` VARCHAR(255) NOT NULL,
+  `username` VARCHAR(255) DEFAULT NULL,
+  `firstname` VARCHAR(255) DEFAULT NULL,
+  `lastname` VARCHAR(255) DEFAULT NULL,
 -- The maximum length for an email address is 254 chars by RFC3696 errata
-  `email` VARCHAR(254) DEFAULT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
   `create_time` TIMESTAMP NOT NULL DEFAULT 0,
   `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

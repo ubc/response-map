@@ -38,7 +38,7 @@ class Lti
         }
         if ($this->testing) {
             $this->valid = true;
-            $this->usedummydata();
+            $this->use_dummy_data();
         } else if ($required_valid) {
             $store = new TrivialOAuthDataStore();
             if (!isset($this->ltivars['oauth_consumer_key'])) {

@@ -1,4 +1,10 @@
 <?php
+if (isset($_ENV['DEBUG'])) {
+    // let us turn on errors if DEBUG env var is set
+    error_reporting(E_ALL);
+    mysqli_report(MYSQLI_REPORT_ALL);
+}
+
 require_once('lti.php');
 
 /* Check if a valid lti request received */
