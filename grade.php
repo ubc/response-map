@@ -63,8 +63,11 @@ if (!empty($_SESSION['config']['lis_outcome_service_url'])) {
         ),
     );
 
-    $ctx = stream_context_create($options);
-    $fp = @fopen($outcome_url, 'rb', FALSE, $ctx);
-    $response = @stream_get_contents($fp);
+    if (isset($_SESSION['config']['lis_result_sourcedid'])) {
+        # can do grade passback
+        $ctx = stream_context_create($options);
+        $fp = @fopen($outcome_url, 'rb', FALSE, $ctx);
+        $response = @stream_get_contents($fp);
+    }
 }
 ?>
