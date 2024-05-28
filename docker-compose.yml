@@ -1,20 +1,61 @@
-version: '2'
+# Only for dev use
 services:
-  app:
-    image: ubcctlt/response-map
-    container_name: responsemap-app
+  db:
+    image: mariadb:10.11
+    volumes:
+      - mysqlVol:/var/lib/mysql
+      - type: bind
+        source: ./response_map.sql
+        target: /docker-entrypoint-initdb.d/response_map.sql
+        read_only: true
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: &dbName rmap
+      MYSQL_USER: &dbUser rmap
+      MYSQL_PASSWORD: &dbPass rmap
+      MARIADB_AUTO_UPGRADE: 1
+
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
     ports:
-      - 8080:80
+      - 8121:8080
+    depends_on:
+      - db
+    environment:
+      ADMINER_PLUGINS: 'env-var-login'
+      DB_DRIVER: 'mysql'
+      DB_HOST: 'db'
+      DB_USERNAME: *dbUser
+      DB_PASSWORD: *dbPass
+      DB_NAME: *dbName
+    volumes:
+      # needs to be a bind mount instead of the default volume mount or
+      # docker will create a directory instead of mounting the single file
+      - type: bind
+        source: ./docker/dev/adminer/env-var-login.php
+        target: /var/www/html/plugins/env-var-login.php
+        read_only: true
+
+  app:
+    # Set up the "build:" configuration:
+    build: .
+    depends_on:
+      - db
+
+    volumes:
+      - .:/var/www/html/
+    ports:
+      - '8120:80'
     environment:
       DB_HOST: db
-      OAUTH_CONSUMER: '{"key": "sec"}'
-    restart: always
-    volumes:
-      - .:/var/www/html
-  db:
-    image: mariadb:10.1
-    environment:
-      - MYSQL_ROOT_PASSWORD=randompass
-      - MYSQL_DATABASE=response_map
-      - MYSQL_USER=rmap_user
-      - MYSQL_PASSWORD=rmap_pass
+      DB_NAME: *dbName
+      DB_USERNAME: *dbUser
+      DB_PASSWORD: *dbPass
+      ADMIN_PASSWORD: admin
+      OAUTH_CONSUMER: '{"key": "rmapkey"}'
+      GOOGLE_KEY: ''
+      GOOGLE_KEY_SERVER: ''
+
+volumes:
+  mysqlVol:
