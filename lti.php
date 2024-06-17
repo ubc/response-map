@@ -63,6 +63,14 @@ class Lti
                             $tmp[$key] = $value;
                         }
                     }
+                    if ($request->get_parameter('showcloud')) {
+                        $tmp['custom_showcloud'] =
+                            $request->get_parameter('showcloud');
+                    }
+                    if ($request->get_parameter('usecolor')) {
+                        $tmp['custom_usecolor'] =
+                            $request->get_parameter('usecolor');
+                    }
                     $_SESSION['config'] = $tmp;
                     $_SESSION['authenticated'] = true;
                     $this->valid = true;

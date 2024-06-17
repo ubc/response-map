@@ -817,30 +817,9 @@ class OAuthUtil
     {
         if (!isset($input) || !$input) return array();
 
-        $pairs = split('&', $input);
-
-        $parsed_parameters = array();
-        foreach ($pairs as $pair) {
-            $split = split('=', $pair, 2);
-            $parameter = OAuthUtil::urldecode_rfc3986($split[0]);
-            $value = isset($split[1]) ? OAuthUtil::urldecode_rfc3986($split[1]) : '';
-
-            if (isset($parsed_parameters[$parameter])) {
-                // We have already recieved parameter(s) with this name, so add to the list
-                // of parameters with this name
-
-                if (is_scalar($parsed_parameters[$parameter])) {
-                    // This is the first duplicate, so transform scalar (string) into an array
-                    // so we can add the duplicates
-                    $parsed_parameters[$parameter] = array($parsed_parameters[$parameter]);
-                }
-
-                $parsed_parameters[$parameter][] = $value;
-            } else {
-                $parsed_parameters[$parameter] = $value;
-            }
-        }
-        return $parsed_parameters;
+        $output = array();
+        parse_str($input, $output);
+        return $output;
     }
 
     public static function build_http_query($params)

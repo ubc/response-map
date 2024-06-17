@@ -18,7 +18,7 @@ function escapeInput($input)
 function wordCount($all_text)
 {
     // Remove any leading and trailing whitespaces and convert to lowercase
-    $all_text = strtolower(trim($all_text));
+    $all_text = strtolower(trim(strip_tags($all_text)));
 
     $text_without_stopwords = trim(removeCommonWords($all_text));
 

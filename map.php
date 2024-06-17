@@ -318,7 +318,8 @@ mysqli_close($conn);
             var frequencyList = <?php echo $word_frequency ?>;
             var color_range = ['#ddd', '#ccc', '#bbb', '#aaa', '#999', '#888', '#777', '#666', '#555', '#444', '#333', '#222'];
             var use_color = false;
-            <?php if(isset($_POST['custom_usecolor']) && $_POST['custom_usecolor'] == 'true') { ?>
+
+            <?php if(isset($_SESSION['config']['custom_usecolor']) && $_SESSION['config']['custom_usecolor'] == 'true') { ?>
             use_color = true;
             <?php } ?>
             if (use_color) {
