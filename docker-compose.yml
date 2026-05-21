@@ -1,7 +1,7 @@
 # Only for dev use
 services:
   db:
-    image: mariadb:10.11
+    image: mariadb:11.4
     volumes:
       - mysqlVol:/var/lib/mysql
       - type: bind
@@ -56,6 +56,108 @@ services:
       OAUTH_CONSUMER: '{"key": "rmapkey"}'
       GOOGLE_KEY: ''
       GOOGLE_KEY_SERVER: ''
+      DEBUG: true
+
+  canvas.postgres:
+    image: pgvector/pgvector:pg14
+    volumes:
+      - canvasPostgresData:/var/lib/postgresql/data
+      - ./docker/dev/canvas:/docker-entrypoint-initdb.d
+    healthcheck: # no built-in healthcheck in the image, so we specify one
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -p 5432"]
+      start_period: 2m # ignore failures in the initial 2 minutes
+    environment:
+      POSTGRES_PASSWORD: sekret
+
+  canvas: &CANVAS
+    image: lthub/canvas-dev-only:release.2026-01-28.618
+    ports:
+      - 9100:80
+    depends_on:
+      canvas.postgres:
+        # if starting from scratch, postgres db needs to be initialized, which
+        # can take some time, so we need to wait until postgres is healthy
+        condition: service_healthy
+      canvas.redis:
+        condition: service_started
+    volumes:
+      - api_docs:/usr/src/app/public/doc/api
+      - brandable_css_brands:/usr/src/app/app/stylesheets/brandable_css_brands
+      - bundler:/home/docker/.bundle/
+      - canvas-docker-gems:/home/docker/.gem/
+      - js-utils_es:/usr/src/app/packages/js-utils/es
+      - js-utils_lib:/usr/src/app/packages/js-utils/lib
+      - js-utils_node_modules:/usr/src/app/packages/js-utils/node_modules
+      - locales:/usr/src/app/config/locales/generated
+      - log:/usr/src/app/log
+      - node_modules:/usr/src/app/node_modules
+      - pacts:/usr/src/app/pacts
+      - public_dist:/usr/src/app/public/dist
+      - reports:/usr/src/app/reports
+      - styleguide:/usr/src/app/app/views/info
+      - tmp:/usr/src/app/tmp
+      - translations:/usr/src/app/public/javascripts/translations
+      - yardoc:/usr/src/app/.yardoc
+      - yarn-cache:/home/docker/.cache/yarn
+    environment:
+      VIRTUAL_HOST: .canvas.docker
+      CANVAS_DATABASE_HOST: canvas.postgres
+      CANVAS_REDIS_HOST: canvas.redis
+      HTTPS_METHOD: noredirect
+      POSTGRES_PASSWORD: sekret
+      ENCRYPTION_KEY: facdd3a131ddd8988b14f6e4e01039c93cfa0160
+      RAILS_ENV: development
+
+  canvas.job:
+    <<: *CANVAS
+    command: bundle exec script/delayed_job run
+    attach: false # job is very noisy, so we hide logs for it by default
+    ports: []
+
+  canvas.redis:
+    image: redis:alpine
+    attach: false # hide logs, noisy and we shouldn't need it anyway
+
+  # Inside the docker network, canvas is served on port 80. When we expose
+  # canvas to external traffic however, we serve canvas on port 9100. This
+  # mismatch means that when app talks directly to canvas using the external
+  # url (http://canvas.docker:9100), it doesn't work because app is also inside
+  # the docker network and needs to use port 80. To workaround this, socat will
+  # redirect internal docker traffic to port 9100 to canvas port 80.
+  canvas.socat:
+    image: alpine/socat:1.8.0.3
+    depends_on:
+      - canvas
+    command: "TCP-LISTEN:9100,fork,reuseaddr TCP:canvas:80"
+    networks:
+      default:
+        aliases:
+          - canvas.docker
 
 volumes:
   mysqlVol:
+  # Canvas Volumes
+  canvasPostgresData:
+  api_docs: {}
+  brandable_css_brands: {}
+  bundler: {}
+  canvas-docker-gems: {}
+  i18nliner_node_modules: {}
+  js-utils_es: {}
+  js-utils_lib: {}
+  js-utils_node_modules: {}
+  k5uploader_es: {}
+  k5uploader_lib: {}
+  k5uploader_node_modules: {}
+  locales: {}
+  log: {}
+  node_modules: {}
+  pg_data: {}
+  pacts: {}
+  public_dist: {}
+  reports: {}
+  styleguide: {}
+  tmp: {}
+  translations: {}
+  yardoc: {}
+  yarn-cache: {}
