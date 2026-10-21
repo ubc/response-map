@@ -16,6 +16,16 @@ You will need have an Apache HTTP server which is configured to serve PHP files 
     - Save a copy of `config.example.php` as `config.php` and edit the configuration variables.
 3. Create a database with the name set in Step 2 and import `response_map.sql` to create the necessary tables.
 
+## Releasing a Docker image
+GitHub Actions builds and smoke-tests the image on every push to `master` and every pull request. Pushing a git tag also publishes `ubcctlt/response-map:<tag>`:
+
+```
+git tag -a 1.0.4 -m "short description"
+git push origin 1.0.4
+```
+
+Deployments pin the image tag, so bump it there to roll out the new image.
+
 ## Integrating with edX
 1. [Enable LTI component for your course](http://edx.readthedocs.io/projects/edx-partner-course-staff/en/latest/exercises_tools/lti_component.html#enabling-lti-components-for-a-course).
 2. Also under Advanced Settings, the LTI Passports array must contain the LTI key and secret pair that is used by the tool (set in Step 2). You must add it to the array in the following format: ```"passport_id:key:secret"```. The id is later used when configuring the LTI component to obtain the key and secret.

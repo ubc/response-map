@@ -41,6 +41,7 @@ log
 diff
 
 .git/
+.github/
 .dockerignore
 .gitignore
 files/*.png
