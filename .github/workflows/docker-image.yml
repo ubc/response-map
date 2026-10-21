@@ -1,0 +1,88 @@
+name: Docker image
+
+# Every run builds and smoke-tests the image. Pushing a git tag (e.g. 1.0.4)
+# also publishes ubcctlt/response-map:<tag>, which is what the deployment
+# config pins.
+on:
+  push:
+    branches: [ master ]
+    tags: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ubcctlt/response-map
+  TEST_TAG: response-map:test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ env.IMAGE }}
+          # Don't move the old `latest` tag; deployments pin release tags.
+          flavor: latest=false
+          tags: type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build test image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: ${{ env.TEST_TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        run: |
+          docker run --rm --entrypoint php "$TEST_TAG" -v
+
+          modules=$(docker run --rm --entrypoint php "$TEST_TAG" -m)
+          for ext in mysqli gd imagick 'Zend OPcache'; do
+            grep -qx "$ext" <<< "$modules" || { echo "::error::PHP extension missing: $ext"; exit 1; }
+          done
+
+          docker run --rm --entrypoint sh "$TEST_TAG" -c \
+            'find /var/www/html -name "*.php" -print0 | xargs -0 -n1 php -l'
+
+          docker run -d --name smoke -p 8080:80 "$TEST_TAG"
+          curl -sSI --retry 10 --retry-all-errors --retry-delay 1 http://localhost:8080/ \
+            | grep -i '^x-powered-by: PHP/' \
+            || { docker logs smoke; echo "::error::Apache did not serve PHP"; exit 1; }
+
+      - name: Log in to Docker Hub
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push release image
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
