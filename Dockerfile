@@ -1,4 +1,4 @@
-FROM php:8.5-apache
+FROM php:8.5.12-apache
 
 ENV DB_HOST localhost
 ENV DB_PORT 3306
